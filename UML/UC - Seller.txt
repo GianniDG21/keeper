@@ -1,0 +1,38 @@
+@startuml
+' Impostazioni per un aspetto più pulito
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor #LightYellow
+    BorderColor #DarkGoldenRod
+}
+skinparam rectangle {
+    BorderColor #Gray
+    BackgroundColor #White
+}
+
+left to right direction
+
+' --- Attori ---
+actor "Venditore" as venditore
+actor "Cliente" as cliente
+
+' --- Confine del Sistema ---
+rectangle "Piattaforma Aziendale" {
+    usecase "Gestire Propri Appuntamenti" as UC1
+    usecase "Gestire Trattative di Vendita" as UC2
+    usecase "Gestire Anagrafica Clienti" as UC3
+    usecase "Gestire Parco Auto" as UC4
+}
+
+' === Associazioni del Venditore ===
+venditore -- UC1
+venditore -- UC2
+venditore -- UC3
+venditore -- UC4
+
+' === Associazioni dell'attore secondario ===
+' Le trattative e le anagrafiche riguardano i dati del cliente
+UC2 -- cliente
+UC3 -- cliente
+
+@enduml

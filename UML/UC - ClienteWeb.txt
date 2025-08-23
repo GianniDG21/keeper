@@ -1,0 +1,50 @@
+@startuml
+' Impostazioni per un aspetto più pulito
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor #LightGreen
+    BorderColor #DarkGreen
+}
+skinparam rectangle {
+    BorderColor #Gray
+    BackgroundColor #White
+}
+
+' Direzione del diagramma
+left to right direction
+
+' Definizione degli attori
+actor "Cliente" as cliente
+actor "Personale della Filiale" as personale
+
+' Definizione del confine del sistema (la nostra applicazione)
+rectangle "Sistema Concessionaria" {
+    
+    ' -- Casi d'uso del Cliente --
+    usecase "Consultare Vetrina Auto" as UC1
+    usecase "Verificare Disponibilità" as UC2
+    usecase "Richiedere Appuntamento" as UC3
+
+    ' -- Casi d'uso del Personale --
+    usecase "Gestire Appuntamenti" as UC4
+    usecase "Gestire Vetrina Auto" as UC5
+    usecase "Gestire Turni Lavoro" as UC6
+}
+
+' === Associazioni del Cliente ===
+cliente -- UC1
+cliente -- UC3
+
+' La consultazione della vetrina include SEMPRE la verifica della disponibilità
+UC1 .> (UC2) : <<include>>
+
+' === Associazioni del Personale ===
+' La richiesta di appuntamento coinvolge il personale (attore secondario)
+UC3 -- personale
+
+' Il personale gestisce attivamente il sistema
+personale -- UC4
+personale -- UC5
+personale -- UC6
+
+@enduml

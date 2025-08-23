@@ -1,0 +1,46 @@
+@startuml
+' Impostazioni per un aspetto più pulito
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor #LightBlue
+    BorderColor #DarkSlateGray
+}
+skinparam rectangle {
+    BorderColor #Gray
+    BackgroundColor #White
+}
+
+left to right direction
+
+' --- Definizione Attore Base (Genitore) ---
+actor "Manager" as manager
+
+' --- Definizione Attori Specifici (Figli) ---
+actor "Responsabile Locale" as R_Locale
+actor "Responsabile di Zona" as R_Zona
+actor "C-Board" as C_Board
+
+' --- Relazione di Generalizzazione / Ereditarietà ---
+' I ruoli specifici SONO UN TIPO DI Manager
+R_Locale <|-- manager
+R_Zona <|-- manager
+C_Board <|-- manager
+
+
+' --- Confine del Sistema ---
+rectangle "Piattaforma Aziendale (Area Riservata)" {
+    usecase "Visualizzare Report Vendite" as UC1
+    usecase "Supervisionare Performance" as UC2
+    usecase "Analizzare Dati Finanziari" as UC3
+    usecase "Definire Obiettivi e Budget" as UC4
+}
+
+' === Associazioni ===
+' Solo l'attore base è collegato ai casi d'uso.
+' I figli ereditano automaticamente questi collegamenti.
+manager -- UC1
+manager -- UC2
+manager -- UC3
+manager -- UC4
+
+@enduml

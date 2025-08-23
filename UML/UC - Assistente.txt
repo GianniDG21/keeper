@@ -1,0 +1,54 @@
+@startuml
+' Impostazioni per un aspetto più pulito
+skinparam actorStyle awesome
+skinparam usecase {
+    BackgroundColor #LightCyan
+    BorderColor #DarkBlue
+}
+skinparam rectangle {
+    BorderColor #Gray
+    BackgroundColor #White
+}
+
+left to right direction
+
+' --- Attori ---
+actor "Assistente" as assistente
+actor "Manager" as manager
+actor "Venditore" as venditore
+
+' --- Confine del Sistema ---
+rectangle "Piattaforma Aziendale" {
+    
+    ' -- Casi d'uso dell'Assistente --
+    usecase "Gestire Appuntamenti" as UC1
+    usecase "Aggiornare Agenda" as UC1_include
+    usecase "Gestire Catalogo Auto" as UC2
+    usecase "Proporre Turni Settimanali" as UC3
+    usecase "Gestire Contabilità di Base" as UC5
+
+    ' -- Caso d'uso del Manager --
+    usecase "Approvare Turni Settimanali" as UC4
+}
+
+' === Associazioni dell'Assistente ===
+assistente -- UC1
+assistente -- UC2
+assistente -- UC3
+assistente -- UC5
+
+' === Associazioni del Manager ===
+' Il manager approva i turni proposti dall'assistente
+manager -- UC4
+' L'agenda del manager è coinvolta nella gestione appuntamenti
+UC1 -- manager
+
+' === Associazioni del Venditore ===
+' L'agenda del venditore è coinvolta nella gestione appuntamenti
+UC1 -- venditore
+
+' === Relazioni tra Use Case ===
+' La gestione degli appuntamenti include SEMPRE l'aggiornamento delle agende
+UC1 .> (UC1_include) : <<include>>
+
+@enduml
