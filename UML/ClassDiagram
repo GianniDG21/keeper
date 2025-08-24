@@ -31,6 +31,8 @@ class RoleEnum {
 Assistant
 Seller
 Manager
+Area-Manager
+ADMIN
 }
 
 class Dealership {
