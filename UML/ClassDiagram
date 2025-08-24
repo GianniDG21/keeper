@@ -10,7 +10,6 @@ class PrivateClient {
   +TIN : varchar(16) <<UNIQUE>>
   +FirstName : varchar(50)
   +LastName : varchar(50)
-  +Phone : varchar(20)
   +Profession : varchar(30)
 }
 
@@ -19,8 +18,8 @@ class BusinessClient {
   +CompanyName : varchar(150)
 }
 
-class Employeers {
-  +ID_Employeer : int <<PK>>
+class Employee {
+  +ID_Employee : int <<PK>>
   +TIN : varchar(16) <<UNIQUE>>
   +FirstName : varchar(50)
   +LastName : varchar(50)
@@ -36,35 +35,26 @@ Manager
 
 class Dealership {
   +ID_Dealership : int <<PK>>
-  +PostalCode : int(5)
+  +PostalCode : varchar(5)
   +City : varchar(30)
   +Address : varchar(50)
   +Phone : varchar(20)
 }
 
-abstract class Employment {
+class Employment {
   +ID_Employment : int <<PK>>
-  +ID_Employeer : int <<FK>>
+  +ID_Employee : int <<FK>>
   +ID_Dealership : int <<FK>>
+  +StartDate : date
+  +EndDate : date <<NULL>>
 }
 
-class Employed {
-  +StartingDate : date
-}
-
-class Fired {
-  +EndingDate : date
-}
-
-abstract class CarPark {
-  +VIM : int <<PK>>
+class CarPark {
+  +VIN : int <<PK>>
   +Brand : varchar(15)
   +Model : varchar(15)
   +Year : int(4)
   +Dealership : int <<FK>>
-}
-
-class UsedCar {
   +KM : int(6)
   +LastOil : date
   +KnownIncidents : text
@@ -72,15 +62,37 @@ class UsedCar {
 }
 
 
+class Order {
+  +ID_Order : int <<PK>>
+  +Status : EnumStatus
+  +ID_Client : int <<FK>>
+  +ID_Dealership : int <<FK>>
+  +ID_Car : int <<FK>>
+  +ID_Employee : int <<FK>>
+  +LastUpdate : date
+}
 
-Employeers <|-- RoleEnum
-CarPark <|-- UsedCar
+class EnumStatus {
+In Progress
+Completed
+Canceled
+Waiting for Client
+}
+
+
+
+
+
+Order -- EnumStatus
+Employee -- RoleEnum
 Client <|-- PrivateClient
 Client <|-- BusinessClient
-Employment <|-- Fired
-Employment <|-- Employed
-Employeers "1" -- "n" Employment
-Dealership "1" -- "n" Employment
-Dealership "1" -- "n" CarPark
+Employee "1" -- "*" Employment
+Dealership "1" -- "*" Employment
+Dealership "1" -- "*" CarPark
+Dealership "1" -- "*" Order
+Client "1" -- "*" Order
+Employee "1" -- "*" Order
+
 
 @enduml
