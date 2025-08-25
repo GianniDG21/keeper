@@ -81,7 +81,15 @@ Canceled
 Waiting for Client
 }
 
-
+class Appointment {
+  +ID_Appointment : int <<PK>>
+  +Date : date
+  +Time : time
+  +Reason: varchat(256)
+  +ID_Client : int <<FK>>
+  +ID_Employee : int <<FK>>
+  +VIN : int <<FK>>
+}
 
 
 
@@ -95,6 +103,9 @@ Dealership "1" -- "*" CarPark
 Dealership "1" -- "*" Order
 Client "1" -- "*" Order
 Employee "1" -- "*" Order
+Employee "1" -- "*" Appointment
+Client "1" -- "*" Appointment
+CarPark "1" -- "*" Appointment
 
 
 @enduml
