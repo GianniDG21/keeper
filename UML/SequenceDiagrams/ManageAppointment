@@ -1,0 +1,64 @@
+@startuml
+' === Title ===
+title Sequence: Appointment Modification (Reschedule)
+
+' === Participants ===
+actor Customer
+participant "Management Page (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+participant "Notification Service" as Notifier
+
+' === Sequence Start ===
+
+Customer -> Frontend: 1. Enters new date/time and clicks "Save Changes"
+activate Frontend
+
+Frontend -> API: 2. PUT /appointments/{id} (new_date, new_time)
+activate API
+note left of API: Using PUT or PATCH is the correct RESTful approach\n'to update an existing resource.
+
+API -> API: 3. Validates the new data
+note right of API: Server-side validation ensures that the new date/time\n'is valid and respects business rules.
+
+API -> Database: 4. Query: Checks availability of the NEW time slot
+activate Database
+note left of API
+  This is a critical concurrency check.
+  The API must verify that the new slot
+  has not been taken by another user
+  since the page was loaded.
+end note
+Database --> API: 5. Returns result (free or taken)
+deactivate Database
+
+alt New Slot is Available (Happy Path)
+    API -> Database: 6. UPDATE Appointment SET Date=..., Time=... WHERE ID=...
+    activate Database
+    Database --> API: Record updated
+    deactivate Database
+
+    API -> Notifier: 7. Sends reschedule notification
+    activate Notifier
+    Notifier --> API: 202 Accepted
+    deactivate Notifier
+    
+    API --> Frontend: 8. 200 OK (updated appointment data)
+    deactivate API
+
+    Frontend -> Customer: 9. Displays message: "Appointment rescheduled successfully!"
+    deactivate Frontend
+
+else New Slot is Taken (Alternative Path)
+    API --> Frontend: 10. 409 Conflict (Error: slot not available)
+    deactivate API
+    note right of Frontend
+      The frontend receives a specific error code,
+      allowing it to provide a tailored user experience.
+    end note
+
+    Frontend -> Customer: 11. Displays error and asks: "This time is no longer available. Try another time or cancel?"
+    deactivate Frontend
+end
+
+@enduml

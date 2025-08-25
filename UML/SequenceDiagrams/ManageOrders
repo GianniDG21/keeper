@@ -1,0 +1,46 @@
+@startuml
+' === Title ===
+title Sequence: Update Order Status
+
+' === Participants ===
+actor Employee
+participant "Internal Admin (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+participant "Notification Service" as Notifier
+
+' === Sequence Start ===
+
+Employee -> Frontend: 1. Searches for an order and selects a new status (e.g., 'Completed')
+activate Frontend
+
+Frontend -> API: 2. PUT /orders/{id} (new_status: 'Completed')
+activate API
+note left of API: The PUT or PATCH method is used to update\n'the state of an existing resource.
+
+API -> API: 3. Validates request and employee permissions
+note right of API
+  The API checks if the Assistant
+  has the authorization to perform
+  this status change according to their role.
+end note
+
+API -> Database: 4. UPDATE "Order" SET Status='Completed', LastUpdate=NOW() WHERE ID=...
+activate Database
+Database --> API: 5. Record updated successfully
+deactivate Database
+
+API -> Notifier: 6. POST /notify (type: 'order_status_update', order_data)
+activate Notifier
+note left of API: A notification is sent to the customer\n'asynchronously via the Notification Service.
+Notifier --> API: 202 Accepted
+deactivate Notifier
+
+API --> Frontend: 7. 200 OK (updated order data)
+deactivate API
+note right of Frontend: 200 OK confirms that the update\n'was successful.
+
+Frontend -> Employee: 8. Displays confirmation: "Order status updated successfully!"
+deactivate Frontend
+
+@enduml

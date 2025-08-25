@@ -1,0 +1,67 @@
+@startuml
+' === Title ===
+title Sequence: Customer Appointment Request
+
+' === Participants ===
+actor Customer
+participant "Website (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+participant "Notification Service" as Notifier
+
+' === Sequence Start ===
+
+Customer -> Frontend: 1. Fills out and submits the appointment form
+activate Frontend
+
+Frontend -> API: 2. POST /appointments (data: reason, type, date/time)
+activate API
+note right of Frontend: The frontend sends the user's data\n'to the creation endpoint.
+
+API -> API: 3. Validates the request
+note left of API
+  Validates input data (e.g., date format is correct)
+  and business rules (e.g., appointment is in the future).
+end note
+
+API -> Database: 4. Query: Checks for existing appointments in the requested time slot
+activate Database
+Database --> API: 5. Returns a list of overlapping appointments (if any)
+deactivate Database
+
+alt Time Slot is Available
+    API -> Database: 6. INSERT INTO Appointment (Status: 'REQUESTED', ...)
+    activate Database
+    note right of Database
+      The appointment is created with a 'REQUESTED'
+      status, awaiting final staff confirmation.
+    end note
+    Database --> API: Appointment created (ID: 123)
+    deactivate Database
+    
+    API -> Notifier: 7. POST /notify (type: 'appointment_confirmation', data)
+    activate Notifier
+    note left of API
+      Email notifications are delegated
+      to a separate service and
+      handled asynchronously.
+    end note
+    Notifier --> API: 202 Accepted
+    deactivate Notifier
+
+    API --> Frontend: 8. 201 Created (ID_Appointment: 123)
+    note right of Frontend: 201 Created indicates successful\n'creation of a new resource.
+    Frontend -> Customer: Displays success message
+else Time Slot is Taken
+    API --> Frontend: 9. 409 Conflict (Error: time slot not available)
+    note right of Frontend
+      409 Conflict indicates a conflict with the
+      current state of the resources (e.g., schedule).
+    end note
+    Frontend -> Customer: Displays error message
+end
+
+deactivate API
+deactivate Frontend
+
+@enduml

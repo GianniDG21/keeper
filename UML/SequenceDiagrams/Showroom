@@ -1,0 +1,48 @@
+@startuml
+' === Title ===
+title Sequence: Browsing the Car Showroom
+
+' === Participants ===
+actor Customer
+participant "Website (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+
+' === Sequence Start ===
+
+Customer -> Frontend: 1. Searches for cars (with or without filters)
+activate Frontend
+
+Frontend -> API: 2. GET /vehicles?city=Lecce&brand=Fiat&page=1
+activate API
+note right of Frontend: Filtering and pagination criteria\nare sent via query parameters.
+
+API -> Database: 3. Executes a dynamic SQL query with filters
+activate Database
+note left of API
+  The API builds the query
+  by joining the CarPark and Dealership tables
+  and applying LIMIT/OFFSET for pagination.
+end note
+Database --> API: 4. Returns a list of matching vehicles
+deactivate Database
+
+API -> API: 5. Formats the data payload
+note right of API
+  Data is serialized to JSON.
+  Relative image paths are converted
+  to full URLs for the client.
+end note
+
+API --> Frontend: 6. 200 OK (JSON with vehicle list and pagination info)
+deactivate API
+
+Frontend -> Customer: 7. Displays the grid of available cars
+deactivate Frontend
+note right of Frontend
+  If the list is empty,
+  a "No results found"
+  message is shown instead.
+end note
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+' === Title ===
+title Sequence: New Order Creation
+
+' === Participants ===
+actor Seller
+participant "Internal Admin (Frontend)" as Frontend
+participant "KEEPER (Go API)" as API
+database Database
+participant "Notification Service (Python)" as Notifier
+
+' === Sequence Start ===
+
+Seller -> Frontend: 1. Fills out and submits the new order form
+activate Frontend
+
+Frontend -> API: 2. POST /orders (data: client, VIN, price)
+activate API
+note left of API: The API receives and validates the request
+
+API -> Database: 3. INSERT INTO "Order" (ID_Client, ID_Car, ...) VALUES (...)
+activate Database
+note right of Database: The database creates the order record
+Database --> API: Confirmation (New ID_Order)
+deactivate Database
+
+API -> Database: 4. UPDATE "CarPark" SET Status='Sold' WHERE VIN=...
+activate Database
+Database --> API: Confirmation
+deactivate Database
+
+API -> Notifier: 5. POST /notify (type: 'new_order', order_data)
+activate Notifier
+note right of Notifier: The notification service sends emails to the client and seller in the background
+Notifier --> API: 202 Accepted
+deactivate Notifier
+
+API --> Frontend: 6. 201 Created (ID_Order: 123)
+deactivate API
+
+Frontend -> Seller: 7. Displays message: "Order #123 created successfully!"
+deactivate Frontend
+
+@enduml
