@@ -1,0 +1,54 @@
+@startuml
+' === Title ===
+title Sequence: Employee Performance Report
+
+' === Participants ===
+actor Manager
+participant "Internal Admin (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+
+' === Sequence Start ===
+
+Manager -> Frontend: 1. Selects an employee and a time period
+activate Frontend
+
+Frontend -> API: 2. GET /reports/performance/employees/{id}?period=last_quarter
+activate API
+note left of API: The endpoint is specific to performance\n'and identifies the resource (employee) by its ID.
+
+API -> API: 3. **Authorization Check**
+note right of API
+  The API verifies that the Manager
+  has the necessary permissions to view
+  the performance data of the selected employee.
+end note
+
+alt User is Authorized
+    API -> Database: 4. Executes aggregation query for the employee
+    activate Database
+    note right of Database
+      The query calculates specific metrics:
+      - COUNT(orders) as TotalSales
+      - SUM(price) as TotalValue
+      filtering by ID_Employee and the time period.
+    end note
+    Database --> API: 5. Returns the aggregated data
+    deactivate Database
+
+    API -> API: 6. Formats the data into a structured JSON
+    
+    API --> Frontend: 7. 200 OK (JSON with performance metrics)
+    deactivate API
+
+    Frontend -> Manager: 8. Displays the employee's performance dashboard
+    deactivate Frontend
+
+else User is Not Authorized
+    API --> Frontend: 9. 403 Forbidden
+    deactivate API
+    Frontend -> Manager: 10. Displays an access denied error
+    deactivate Frontend
+end
+
+@enduml

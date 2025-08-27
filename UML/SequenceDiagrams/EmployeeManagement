@@ -1,0 +1,56 @@
+@startuml
+' === Titolo ===
+title Sequence: Manage Employee Assignment (End Assignment)
+
+' === Partecipanti ===
+actor "Area-Manager" as AreaManager
+participant "Internal Admin (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+participant "Notification Service" as Notifier
+
+' === Inizio della Sequenza ===
+
+AreaManager -> Frontend: 1. Finds an active assignment and clicks "End Assignment"
+activate Frontend
+
+Frontend -> API: 2. PUT /employments/{id} (end_date: "2025-12-31")
+activate API
+note left of API: The PUT method is used to update the state\n'of a specific employment record.
+
+API -> API: 3. **Authorization Check**
+note right of API
+  The API verifies the user's role.
+  Access is granted only to Manager,
+  Area-Manager, or ADMIN roles.
+end note
+
+alt User is Authorized (Happy Path)
+    API -> API: 4. Validates the data (e.g., EndDate is after StartDate)
+
+    API -> Database: 5. UPDATE "Employment" SET EndDate='2025-12-31' WHERE ID=...
+    activate Database
+    Database --> API: Record updated successfully
+    deactivate Database
+    
+    API -> Notifier: 6. POST /notify (type: 'assignment_ended', data)
+    activate Notifier
+    note right of Notifier: Notifies the employee that their\n'assignment has been officially concluded.
+    Notifier --> API: 202 Accepted
+    deactivate Notifier
+
+    API --> Frontend: 7. 200 OK (updated employment data)
+    deactivate API
+
+    Frontend -> AreaManager: 8. Displays success message: "Assignment successfully concluded!"
+    deactivate Frontend
+
+else User is Not Authorized (Alternative Path)
+    API --> Frontend: 9. 403 Forbidden (Error: Insufficient permissions)
+    deactivate API
+
+    Frontend -> AreaManager: 10. Displays an access denied error message
+    deactivate Frontend
+end
+
+@enduml

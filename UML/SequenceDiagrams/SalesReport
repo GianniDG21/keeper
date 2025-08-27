@@ -1,0 +1,56 @@
+@startuml
+' === Titolo ===
+title Sequence: View Sales Report
+
+' === Partecipanti ===
+actor "Area-Manager" as AreaManager
+participant "Internal Admin (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+
+' === Inizio della Sequenza ===
+
+AreaManager -> Frontend: 1. Selects report filters (e.g., date range, city) and requests the report
+activate Frontend
+
+Frontend -> API: 2. GET /reports/sales?city=Lecce&start_date=...
+activate API
+note left of API: A GET request is used as this is a\n'read-only operation. Filters are passed\n'as query parameters.
+
+API -> API: 3. **Authorization Check**
+note right of API
+  The API verifies that the user's role
+  (Area-Manager) has permission to view reports.
+  It might also check if they are restricted
+  to a specific area (e.g., their own).
+end note
+
+alt User is Authorized (Happy Path)
+    API -> Database: 4. Executes a complex, aggregate SQL query
+    activate Database
+    note right of Database
+      This query joins multiple tables (Order, CarPark, Dealership)
+      and uses aggregate functions (SUM, COUNT, AVG)
+      to calculate the report data.
+    end note
+    Database --> API: 5. Returns the aggregated report data
+    deactivate Database
+
+    API -> API: 6. Formats the data for visualization
+    note left of API: The API structures the raw data into a JSON format\n'that is easy for the frontend to use for charts and tables.
+
+    API --> Frontend: 7. 200 OK (JSON with report data)
+    deactivate API
+
+    Frontend -> AreaManager: 8. Renders and displays the report with charts and tables
+    deactivate Frontend
+
+else User is Not Authorized (Alternative Path)
+    API --> Frontend: 9. 403 Forbidden
+    deactivate API
+
+    Frontend -> AreaManager: 10. Displays an access denied error
+    deactivate Frontend
+end
+
+@enduml

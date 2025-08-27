@@ -1,0 +1,52 @@
+@startuml
+' === Titolo ===
+title Sequence: New Customer Registration
+
+' === Partecipanti ===
+actor Staffer
+participant "Internal Admin (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+
+' === Inizio della Sequenza ===
+
+Staffer -> Frontend: 1. Fills out the new customer registration form
+activate Frontend
+
+Frontend -> API: 2. POST /clients (new client data in JSON)
+activate API
+note left of API: POST is the correct method for creating a new resource (a customer).
+
+API -> API: 3. Validates the incoming data
+note right of API
+    The API validates the data format (e.g., valid email)
+    and, crucially, checks for uniqueness of identifiers
+    like the Tax ID Number (TIN) or VAT Number.
+end note
+
+API -> Database: 4. Query: Checks if a client with the same TIN already exists
+activate Database
+Database --> API: 5. Returns result (e.g., count = 0)
+deactivate Database
+
+alt Client does not exist (Happy Path)
+        API -> Database: 6. INSERT INTO "PrivateClient" (TIN, FirstName, ...) VALUES (...)
+        activate Database
+        Database --> API: New record created successfully (ID_Client: 456)
+        deactivate Database
+
+        API --> Frontend: 7. 201 Created (JSON of the new client)
+        deactivate API
+
+        Frontend -> Staffer: 8. Displays success message: "New customer registered successfully!"
+        deactivate Frontend
+
+else Client already exists (Alternative Path)
+        API --> Frontend: 9. 409 Conflict (Error: A client with this TIN already exists)
+        deactivate API
+
+        Frontend -> Staffer: 10. Displays a specific error message
+        deactivate Frontend
+end
+
+@enduml

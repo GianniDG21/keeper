@@ -1,0 +1,60 @@
+@startuml
+' === Titolo ===
+title Sequence: Remove Vehicle from Inventory
+
+' === Partecipanti ===
+actor Manager
+participant "Internal Admin (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+
+' === Inizio della Sequenza ===
+
+Manager -> Frontend: 1. Finds a vehicle and clicks "Delete"
+activate Frontend
+
+Frontend -> Manager: 2. Displays a confirmation dialog: "Are you sure?"
+note left of Frontend
+  **CRITICAL STEP**: For any destructive action,
+  the frontend must always ask the user
+  for confirmation to prevent accidental data loss.
+end note
+
+Manager -> Frontend: 3. Confirms the action
+Frontend -> API: 4. DELETE /vehicles/{id}
+activate API
+
+API -> API: 5. **Authorization & Business Logic Check**
+note right of API
+  The API first checks if the Manager has permissions.
+  Then, it checks business rules: for example,
+  a vehicle linked to an "In Progress" order
+  cannot be deleted.
+end note
+
+alt Deletion is allowed (Happy Path)
+    API -> Database: 6. DELETE FROM "CarPark" WHERE VIN=...
+    activate Database
+    Database --> API: Record deleted successfully
+    deactivate Database
+
+    API --> Frontend: 7. 204 No Content
+    deactivate API
+    note right of Frontend
+      **204 No Content** is the standard HTTP response
+      for a successful deletion, as there is no data
+      to return in the response body.
+    end note
+
+    Frontend -> Manager: 8. Displays success message: "Vehicle removed successfully!"
+    deactivate Frontend
+
+else Deletion is not allowed (Alternative Path)
+    API --> Frontend: 9. 409 Conflict (Error: Vehicle is part of an active order)
+    deactivate API
+
+    Frontend -> Manager: 10. Displays a specific error message
+    deactivate Frontend
+end
+
+@enduml

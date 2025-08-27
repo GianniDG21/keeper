@@ -1,0 +1,53 @@
+@startuml
+' === Title ===
+title Sequence: Dealership Branch Performance Report
+
+' === Participants ===
+actor "Area-Manager" as AreaManager
+participant "Internal Admin (Frontend)" as Frontend
+participant "KEEPER System (API)" as API
+database Database
+
+' === Sequence Start ===
+
+AreaManager -> Frontend: 1. Selects a dealership branch and a time period
+activate Frontend
+
+Frontend -> API: 2. GET /reports/performance/dealerships/{id}?period=last_month
+activate API
+
+API -> API: 3. **Authorization Check**
+note right of API
+  The API verifies that the Area-Manager
+  is authorized to view the data
+  for the requested branch.
+end note
+
+alt User is Authorized
+    API -> Database: 4. Executes aggregation query for the dealership branch
+    activate Database
+    note right of Database
+      The query aggregates data from all orders
+      linked to the branch in the specified period
+      and might use a GROUP BY clause to find
+      the top performer.
+    end note
+    Database --> API: 5. Returns the aggregated data
+    deactivate Database
+
+    API -> API: 6. Formats the data (branch total, top seller, etc.)
+    
+    API --> Frontend: 7. 200 OK (JSON with branch metrics)
+    deactivate API
+
+    Frontend -> AreaManager: 8. Displays the branch's performance dashboard
+    deactivate Frontend
+
+else User is Not Authorized
+    API --> Frontend: 9. 403 Forbidden
+    deactivate API
+    Frontend -> AreaManager: 10. Displays an access denied error
+    deactivate Frontend
+end
+
+@enduml
