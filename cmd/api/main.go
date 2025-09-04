@@ -2,17 +2,21 @@
 package main
 
 import (
+	"keeper/internal/api"
+	"keeper/internal/storage"
 	"log"
-	"keeper/internal/storage" 
 )
 
 func main() {
-	connString := "user=keeper password=keeper dbname=keeper sslmode=disable"
-	
-	_, err := storage.NewStore(connString)
+	// Inseriamo la stringa di connessione direttamente nel codice per lo sviluppo locale.
+	// Questa è la stringa per il tuo database Docker.
+	connString := "postgres://keeper:keeper@localhost:5432/keeper?sslmode=disable"
+
+	store, err := storage.NewPostgresStore(connString)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed to connect to the database: ", err)
 	}
 
-	log.Println("Setup completed. Server will start here...")
+	server := api.NewAPIServer(":8080", store)
+	server.Run()
 }
