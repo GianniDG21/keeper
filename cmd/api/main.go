@@ -2,16 +2,25 @@
 package main
 
 import (
+	"log"
+	"os"
 	"keeper/internal/api"
 	"keeper/internal/storage"
-	"log"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Inseriamo la stringa di connessione direttamente nel codice per lo sviluppo locale.
-	// Questa è la stringa per il tuo database Docker.
-	connString := "postgres://keeper:keeper@localhost:5432/keeper?sslmode=disable"
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Warning: .env file not found, using OS environment variables")
+	}
 
+	connString := os.Getenv("DATABASE_URL")
+	if connString == "" {
+		log.Fatal("DATABASE_URL environment variable is not set")
+	}
+	
+	// Usiamo la nuova funzione NewPostgresStore
 	store, err := storage.NewPostgresStore(connString)
 	if err != nil {
 		log.Fatal("failed to connect to the database: ", err)

@@ -3,29 +3,55 @@ package storage
 
 import (
 	"database/sql"
+	"keeper/internal/models"
 	"log"
 
-	_ "github.com/jackc/pgx/v5/stdlib" // Il driver viene importato per i suoi "side effects"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-// Store gestirà tutte le interazioni con il database
-type Store struct {
+// PostgresStore è la nostra implementazione concreta dell'interfaccia Store.
+type PostgresStore struct {
 	db *sql.DB
 }
 
-// NewStore crea una nuova istanza dello Store e stabilisce la connessione al DB
-func NewStore(connString string) (*Store, error) {
+// NewPostgresStore crea una nuova istanza di PostgresStore.
+func NewPostgresStore(connString string) (*PostgresStore, error) {
 	db, err := sql.Open("pgx", connString)
 	if err != nil {
 		return nil, err
 	}
 
-	// Verifica che la connessione sia viva
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 
 	log.Println("Database connected successfully")
 
-	return &Store{db: db}, nil
+	return &PostgresStore{db: db}, nil
+}
+
+// GetDealerships è il primo metodo che implementa parte dell'interfaccia Store.
+func (s *PostgresStore) GetDealerships() ([]*models.Dealership, error) {
+	rows, err := s.db.Query(`SELECT id_dealership, postal_code, city, address, phone FROM dealership`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var dealerships []*models.Dealership
+	for rows.Next() {
+		dealership := new(models.Dealership)
+		if err := rows.Scan(
+			&dealership.ID_Dealership,
+			&dealership.PostalCode,
+			&dealership.City,
+			&dealership.Address,
+			&dealership.Phone,
+		); err != nil {
+			return nil, err
+		}
+		dealerships = append(dealerships, dealership)
+	}
+
+	return dealerships, nil
 }
