@@ -13,6 +13,7 @@ const (
 	RoleSeller    Role = "seller"
 	RoleManager   Role = "manager"
 	RoleAdmin     Role = "admin"
+	RoleMechanic  Role = "mechanic"
 )
 
 type Employee struct {
@@ -41,17 +42,22 @@ const (
 type Client struct {
 	ID_Client  int        `json:"id_client"`
 	Type       ClientType `json:"type"`
+	Phone      string     `json:"phone"`
 	TIN_VAT    string     `json:"tin_vat"`
 	Name       string     `json:"name"`
 	Surname    *string    `json:"surname,omitempty"` //Pointer to allow null values
-	Phone      string     `json:"phone"`
-	Email      string     `json:"email"`
+	Company    *string    `json:"company,omitempty"` //Pointer to allow null values
 	Profession *string    `json:"profession,omitempty"` //Pointer to allow null values
 }
 
 type CarPark struct {
 	VIN string `json:"vin"`
-	//INFORMARSI SU COME FUNZIONANO LE CHIAVI SECONDARIE
+	ID_Dealership int    `json:"id_dealership"`
+	Brand string `json:"brand"`
+	Model string `json:"model"`
+	Condition CondType `json:"condition"`
+	Year int `json:"year"`
+	KM string `json:"km"`
 }
 
 type OrderStatus string //OrderStatus as Enum for Order struct
