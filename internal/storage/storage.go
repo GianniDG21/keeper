@@ -34,7 +34,7 @@ type Store interface {
 	CreateCarPark(carPark models.CarPark) (int, error)
 	GetCarParks() ([]models.CarPark, error)
 	UpdateCarPark(id int, carPark models.CarPark) error
-	DeleteCarPark(id int) error
+	DeleteCarPark(vin string) error
 
 	//-----Order Methods-----
 	CreateOrder(order models.Order) (int, error)
