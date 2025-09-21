@@ -34,8 +34,8 @@ type Employment struct {
 	ID_Employment int     `json:"id_employment"`
 	ID_Employee   int     `json:"id_employee"`
 	ID_Dealership int     `json:"id_dealership"`
-	StartDate     string  `json:"start_date"`
-	EndDate       *string `json:"end_date,omitempty"` //Pointer to allow null values
+	StartDate    time.Time `json:"start_date"`
+	EndDate       *time.Time `json:"end_date,omitempty"` //Pointer to allow null values
 }
 
 type ClientType string //ClientType as Enum for Client struct
