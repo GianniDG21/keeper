@@ -1,5 +1,10 @@
 package models
 
+import (
+	"time"
+)
+
+
 type Dealership struct {
 	ID_Dealership int    `json:"id_dealership"`
 	PostalCode    string `json:"postal_code"`
@@ -45,19 +50,25 @@ type Client struct {
 	Phone      string     `json:"phone"`
 	TIN_VAT    string     `json:"tin_vat"`
 	Name       string     `json:"name"`
-	Surname    *string    `json:"surname,omitempty"` //Pointer to allow null values
-	Company    *string    `json:"company,omitempty"` //Pointer to allow null values
+	Surname    *string    `json:"surname,omitempty"`    //Pointer to allow null values
+	Company    *string    `json:"company,omitempty"`    //Pointer to allow null values
 	Profession *string    `json:"profession,omitempty"` //Pointer to allow null values
 }
 
+type CondType string //CondType as Enum for CarPark struct
+const (
+	CondTypeNew  CondType = "new"
+	CondTypeUsed CondType = "used"
+)
+
 type CarPark struct {
-	VIN string `json:"vin"`
-	ID_Dealership int    `json:"id_dealership"`
-	Brand string `json:"brand"`
-	Model string `json:"model"`
-	Condition CondType `json:"condition"`
-	Year int `json:"year"`
-	KM string `json:"km"`
+	VIN           string   `json:"vin"`
+	ID_Dealership int      `json:"id_dealership"`
+	Brand         string   `json:"brand"`
+	Model         string   `json:"model"`
+	Condition     CondType `json:"condition"`
+	Year          int   `json:"year"`
+	KM            int   `json:"km"`
 }
 
 type OrderStatus string //OrderStatus as Enum for Order struct
@@ -68,5 +79,23 @@ const (
 	OrderStatusInProgress OrderStatus = "in_progress"
 )
 
-//type Order
-//Qui andranno le altre strutture dati (models) che rappresentano le entità del nostro dominio.
+type Order struct {
+	ID_Order      int         `json:"id_order"`
+	Status        OrderStatus `json:"status"`
+	ID_Client     int         `json:"id_client"`
+	ID_Employee   int         `json:"id_employee"`
+	VIN           string      `json:"vin"`
+	ID_Dealership int         `json:"id_dealership"`
+	LastUpdate    time.Time        `json:"last_update"`
+
+}
+
+type Appointment struct {
+	ID_Appointment int       `json:"id_appointment"`
+	ID_Client      int       `json:"id_client"`
+	ID_Employee    int       `json:"id_employee"`
+	ID_Dealership  int       `json:"id_dealership"`
+	Date           time.Time `json:"date"`
+	Reason		 string    `json:"reason"`
+	Note		  *string   `json:"note,omitempty"` //Pointer to allow null values
+}
