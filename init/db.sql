@@ -1,93 +1,78 @@
--- ========= DEFINIZIONE DEI TIPI ENUMERATIVI =========
--- Mettiamo tutte le definizioni dei tipi all'inizio per chiarezza.
+create type client_type_enum as enum ('private', 'company');
 
-CREATE TYPE role_enum AS ENUM ('Assistant', 'Seller', 'Manager', 'AreaManager', 'ADMIN');
-CREATE TYPE vehicle_condition AS ENUM ('New', 'Used');
-CREATE TYPE order_status_enum AS ENUM ('Pending', 'Completed', 'Cancelled', 'InProgress');
-CREATE TYPE client_type_enum AS ENUM ('Private', 'Business');
-
-
--- ========= CREAZIONE DELLE TABELLE =========
-
-CREATE TABLE "Dealership" (
-    ID_Dealership SERIAL PRIMARY KEY,
-    PostalCode VARCHAR(5) NOT NULL,
-    City VARCHAR(30) NOT NULL,
-    Address VARCHAR(100) NOT NULL,
-    Phone VARCHAR(20)
+CREATE Table "client" (
+    id_client SERIAL PRIMARY KEY,
+    "type" client_type_enum NOT NULL,
+    phone VARCHAR(20),
+    email VARCHAR(50) UNIQUE,
+    tin_vat VARCHAR(16) UNIQUE,
+    name VARCHAR(50),
+    surname VARCHAR(50),
+    companyname VARCHAR(100) DEFAULT NULL,
+    profession VARCHAR(50) DEFAULT NULL
+);
+CREATE Table dealership (
+    id_dealership SERIAL PRIMARY KEY,
+    postalcode VARCHAR(5) NOT NULL,
+    city VARCHAR(30) NOT NULL,
+    address VARCHAR(100) NOT NULL,
+    phone VARCHAR(20)
+);
+create type role_enum as enum ('Manager', 'Mechanic', 'Salesperson', 'Assistant', 'ADMIN');
+CREATE Table employee (
+    id_employee SERIAL PRIMARY KEY,
+    role role_enum NOT NULL DEFAULT 'Assistant',
+    tin VARCHAR(16) UNIQUE NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    surname VARCHAR(50) NOT NULL,
+    phone VARCHAR(20)
 );
 
-CREATE TABLE "Employee" (
-    ID_Employee SERIAL PRIMARY KEY,
-    TIN VARCHAR(16) UNIQUE NOT NULL,
-    "Name" VARCHAR(50) NOT NULL,
-    "Surname" VARCHAR(50) NOT NULL,
-    Phone VARCHAR(20),
-    "Role" role_enum NOT NULL
+CREATE Table employment (
+    id_employment SERIAL PRIMARY KEY,
+    id_employee INT NOT NULL,
+    id_dealership INT NOT NULL,
+    startdate DATE NOT NULL,
+    enddate DATE,
+    FOREIGN KEY (id_employee) REFERENCES employee(id_employee),
+    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership)
+);
+create type condition_enum as enum ('New', 'Used');
+create table car_park (
+    vin VARCHAR(17) PRIMARY KEY,
+    id_dealership INT NOT NULL,
+    brand VARCHAR(30) NOT NULL,
+    model VARCHAR(30) NOT NULL,
+    condition condition_enum NOT NULL DEFAULT 'New',
+    "year" INT NOT NULL CHECK ("year" > 1900 AND "year" <= (EXTRACT(YEAR FROM CURRENT_DATE) + 1)), 
+    km int NOT NULL DEFAULT 0
 );
 
-CREATE TABLE "Employment" (
-    ID_Employment SERIAL PRIMARY KEY,
-    ID_Employee INT NOT NULL,
-    ID_Dealership INT NOT NULL,
-    StartDate DATE NOT NULL,
-    EndDate DATE,
-    FOREIGN KEY (ID_Employee) REFERENCES "Employee"(ID_Employee),
-    FOREIGN KEY (ID_Dealership) REFERENCES "Dealership"(ID_Dealership)
+create type status_enum as enum ('Pending', 'Completed', 'Cancelled', 'InProgress');
+create table "order" (
+    id_order SERIAL PRIMARY KEY,
+    status status_enum NOT NULL DEFAULT 'Pending',
+    id_client INT NOT NULL,
+    id_employee INT NOT NULL,
+    vin VARCHAR(17) NOT NULL,
+    id_dealership INT NOT NULL,
+    last_update DATE NOT NULL,
+    FOREIGN KEY (id_client) REFERENCES client(id_client),
+    FOREIGN KEY (id_employee) REFERENCES employee(id_employee),
+    FOREIGN KEY (vin) REFERENCES car_park(vin),
+    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership)
 );
 
-CREATE TABLE "CarPark" (
-    VIN VARCHAR(17) PRIMARY KEY,
-    ID_Dealership INT NOT NULL,
-    Brand VARCHAR(30) NOT NULL,
-    Model VARCHAR(30) NOT NULL,
-    "Year" INT NOT NULL,
-    Notes TEXT,
-    "Condition" vehicle_condition NOT NULL DEFAULT 'New',
-    KM INT,
-    Incidents TEXT,
-    OilChange DATE,
-    FOREIGN KEY (ID_Dealership) REFERENCES "Dealership"(ID_Dealership)
+create table appointment (
+    id_appointment SERIAL PRIMARY KEY,
+    id_client INT NOT NULL,
+    id_employee INT NOT NULL,
+    id_dealership INT NOT NULL,
+    "date" TIMESTAMP NOT NULL,
+    reason VARCHAR(100) NOT NULL,
+    notes TEXT,
+    FOREIGN KEY (id_client) REFERENCES client(id_client),
+    FOREIGN KEY (id_employee) REFERENCES employee(id_employee),
+    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership)
 );
 
--- Tabella Client unificata (approccio "Single Table Inheritance")
-CREATE TABLE "Client" (
-    ID_Client SERIAL PRIMARY KEY,
-    ClientType client_type_enum NOT NULL,
-    Phone VARCHAR(20),
-    Email VARCHAR(50) UNIQUE,
-    -- Campi per clienti privati (possono essere NULL)
-    FiscalCode VARCHAR(16) UNIQUE,
-    FirstName VARCHAR(50),
-    LastName VARCHAR(50),
-    -- Campi per clienti business (possono essere NULL)
-    VATNumber VARCHAR(11) UNIQUE,
-    CompanyName VARCHAR(100)
-);
-
-CREATE TABLE "Appointment" (
-    ID_Appointment SERIAL PRIMARY KEY,
-    ID_Employee INT,
-    ID_Client INT,
-    VIN VARCHAR(17),
-    AppointmentDate TIMESTAMP NOT NULL, -- Usiamo TIMESTAMP per includere data e ora
-    Reason VARCHAR(256),
-    FOREIGN KEY (ID_Employee) REFERENCES "Employee"(ID_Employee),
-    FOREIGN KEY (ID_Client) REFERENCES "Client"(ID_Client),
-    FOREIGN KEY (VIN) REFERENCES "CarPark"(VIN)
-);
-
-CREATE TABLE "Order" (
-    ID_Order SERIAL PRIMARY KEY,
-    "Status" order_status_enum NOT NULL DEFAULT 'InProgress',
-    ID_Client INT NOT NULL,
-    ID_Dealership INT NOT NULL,
-    VIN VARCHAR(17) NOT NULL,
-    ID_Employee INT NOT NULL,
-    "OrderDate" DATE,
-    "LastUpdate" DATE,
-    FOREIGN KEY (ID_Client) REFERENCES "Client"(ID_Client),
-    FOREIGN KEY (ID_Dealership) REFERENCES "Dealership"(ID_Dealership),
-    FOREIGN KEY (VIN) REFERENCES "CarPark"(VIN),
-    FOREIGN KEY (ID_Employee) REFERENCES "Employee"(ID_Employee)
-);
