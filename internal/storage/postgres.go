@@ -3,18 +3,21 @@ package storage
 
 import (
 	"database/sql"
+	"fmt"
 	"keeper/internal/models"
 	"log"
-	"gorm.io/gorm"
+
 	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type PostgresStore struct {
-	db *sql.DB
+	db     *sql.DB
 	gormDB *gorm.DB
 }
+
 // I have created this helper function to reduce code duplication, following DRY principle
 func checkResult(result *gorm.DB) error {
 	// 1. Check for generic GORM errors
@@ -43,12 +46,12 @@ func NewPostgresStore(connString string) (*PostgresStore, error) {
 	if err != nil {
 		return nil, err
 	}
-    
-    // 3. Facciamo un Ping per verificare che la connessione standard sia viva
+
+	// 3. Facciamo un Ping per verificare che la connessione standard sia viva
 	if err := sqlDB.Ping(); err != nil {
 		return nil, err
 	}
-	
+
 	log.Println("Database connected successfully (GORM & standard SQL)")
 
 	// 4. Restituiamo uno store con entrambi i campi popolati
@@ -109,32 +112,32 @@ func (s *PostgresStore) GetAllDealerships() ([]models.Dealership, error) {
 }
 
 func (s *PostgresStore) UpdateDealership(id int, dealership *models.Dealership) error {
-    query := `UPDATE dealership 
+	query := `UPDATE dealership 
               SET postal_code = $1, city = $2, address = $3, phone = $4 
               WHERE id_dealership = $5`
-    
-    result, err := s.db.Exec(
-        query,
-        dealership.PostalCode,
-        dealership.City,
-        dealership.Address,
-        dealership.Phone,
-        id,
-    )
-    if err != nil {
-        return err // Corretto: restituisce solo l'errore
-    }
 
-    rowsAffected, err := result.RowsAffected()
-    if err != nil {
-        return err // Corretto: restituisce solo l'errore
-    }
+	result, err := s.db.Exec(
+		query,
+		dealership.PostalCode,
+		dealership.City,
+		dealership.Address,
+		dealership.Phone,
+		id,
+	)
+	if err != nil {
+		return err // Corretto: restituisce solo l'errore
+	}
 
-    if rowsAffected == 0 {
-        return fmt.Errorf("nessuna concessionaria trovata con id %d", id)
-    }
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err // Corretto: restituisce solo l'errore
+	}
 
-    return nil // Corretto: in caso di successo, restituisce nil (nessun errore)
+	if rowsAffected == 0 {
+		return fmt.Errorf("nessuna concessionaria trovata con id %d", id)
+	}
+
+	return nil // Corretto: in caso di successo, restituisce nil (nessun errore)
 }
 
 func (s *PostgresStore) DeleteDealership(id int) error {
@@ -222,7 +225,7 @@ func (s *PostgresStore) UpdateClient(id int, client *models.Client) error {
 	client.ID_Client = id
 	result := s.gormDB.Save(client)
 	return checkResult(result)
-}	
+}
 
 func (s *PostgresStore) DeleteClient(id int) error {
 	result := s.gormDB.Delete(&models.Client{}, id)
@@ -249,5 +252,51 @@ func (s *PostgresStore) UpdateCarPark(id int, carPark *models.CarPark) error {
 
 func (s *PostgresStore) DeleteCarPark(vin string) error {
 	result := s.gormDB.Delete(&models.CarPark{}, "vin = ?", vin)
+	return checkResult(result)
+}
+
+// ORDER QUERIES
+func (s *PostgresStore) CreateOrder(order *models.Order) (int, error) {
+	result := s.gormDB.Create(order)
+	return order.ID_Order, result.Error
+}
+
+func (s *PostgresStore) GetOrders() ([]*models.Order, error) {
+	var orders []*models.Order
+	result := s.gormDB.Find(&orders)
+	return orders, result.Error
+}
+
+func (s *PostgresStore) UpdateOrder(id int, order *models.Order) error {
+	order.ID_Order = id
+	result := s.gormDB.Save(order)
+	return checkResult(result)
+}
+
+func (s *PostgresStore) DeleteOrder(id int) error {
+	result := s.gormDB.Delete(&models.Order{}, id)
+	return checkResult(result)
+}
+
+// APPOINTMENT QUERIES
+func (s *PostgresStore) CreateAppointment(appointment *models.Appointment) (int, error) {
+	result := s.gormDB.Create(appointment)
+	return appointment.ID_Appointment, result.Error
+}
+
+func (s *PostgresStore) GetAppointments() ([]*models.Appointment, error) {
+	var appointments []*models.Appointment
+	result := s.gormDB.Find(&appointments)
+	return appointments, result.Error
+}
+
+func (s *PostgresStore) UpdateAppointment(id int, appointment *models.Appointment) error {
+	appointment.ID_Appointment = id
+	result := s.gormDB.Save(appointment)
+	return checkResult(result)
+}
+
+func (s *PostgresStore) DeleteAppointment(id int) error {
+	result := s.gormDB.Delete(&models.Appointment{}, id)
 	return checkResult(result)
 }

@@ -81,22 +81,21 @@ const (
 )
 
 type Order struct {
-	ID_Order      int         `json:"id_order"`
-	Status        OrderStatus `json:"status"`
-	ID_Client     int         `json:"id_client"`
-	ID_Employee   int         `json:"id_employee"`
-	VIN           string      `json:"vin"`
-	ID_Dealership int         `json:"id_dealership"`
-	LastUpdate    time.Time        `json:"last_update"`
-
+	ID_Order      int         `json:"id_order" gorm:"primaryKey;autoIncrement"`
+	Status        OrderStatus `json:"status" gorm:"column:status"`
+	ID_Client     int         `json:"id_client" gorm:"column:id_client;not null"`
+	ID_Employee   int         `json:"id_employee" gorm:"column:id_employee;not null"`
+	VIN           string      `json:"vin" gorm:"column:vin;not null"`
+	ID_Dealership int         `json:"id_dealership" gorm:"column:id_dealership;not null"`
+	LastUpdate    time.Time   `json:"last_update" gorm:"column:last_update;not null"`
 }
 
 type Appointment struct {
-	ID_Appointment int       `json:"id_appointment"`
-	ID_Client      int       `json:"id_client"`
-	ID_Employee    int       `json:"id_employee"`
-	ID_Dealership  int       `json:"id_dealership"`
-	Date           time.Time `json:"date"`
-	Reason		 string    `json:"reason"`
-	Note		  *string   `json:"note,omitempty"` //Pointer to allow null values
+	ID_Appointment int       `json:"id_appointment" gorm:"primaryKey;autoIncrement"`
+	ID_Client      int       `json:"id_client" gorm:"column:id_client;not null"`
+	ID_Employee    int       `json:"id_employee" gorm:"column:id_employee;not null"`
+	ID_Dealership  int       `json:"id_dealership" gorm:"column:id_dealership;not null"`
+	Date           time.Time `json:"date" gorm:"column:date;not null"`
+	Reason         string    `json:"reason" gorm:"column:reason"`
+	Note           *string   `json:"note,omitempty" gorm:"column:note"`
 }

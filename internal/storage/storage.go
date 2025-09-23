@@ -36,13 +36,13 @@ type Store interface {
 
 	//-----Order Methods-----
 	CreateOrder(order *models.Order) (int, error)
-	GetOrders() ([]models.Order, error)
+	GetOrders() ([]*models.Order, error)
 	UpdateOrder(id int, order *models.Order) error
 	DeleteOrder(id int) error
 
 	//-----Appointment Methods-----
 	CreateAppointment(appointment *models.Appointment) (int, error)
-	GetAppointments() ([]models.Appointment, error)
+	GetAppointments() ([]*models.Appointment, error)
 	UpdateAppointment(id int, appointment *models.Appointment) error
 	DeleteAppointment(id int) error
 }
