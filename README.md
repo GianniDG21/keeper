@@ -69,3 +69,17 @@ If you've taken the time to review this project, thank you. This marks my first 
 For API responses and database queries, this project returns slices of struct values (e.g., `[]models.Dealership`) instead of slices of pointers (e.g., `[]*models.Dealership`).  
 This choice ensures that API consumers cannot accidentally modify the original data, improving safety and predictability.  
 While using pointers can be more efficient for very large structs, in this context the data structures are small enough that the safety and clarity benefits outweigh the minor performance cost.
+
+#### Hibryd Data Access Layer
+
+A deliberate hybrid approach was chosen for the project's data access layer to demonstrate proficiency in two different database interaction methodologies.
+
+- Low-Level Control (Standard database/sql Package)
+
+The core CRUD functionalities for primary entities (e.g., Dealership, CarPark) were implemented using Go's standard database/sql package. This approach was taken to showcase a fundamental understanding of low-level database interaction, including full control over SQL queries and manual data mapping.
+
+- High-Level Abstraction (GORM)
+
+For more standard and repetitive CRUD operations on other entities, the GORM library was integrated. This choice demonstrates the ability to leverage a modern ORM to increase development speed, reduce boilerplate code, and improve maintainability, simulating a real-world production environment where productivity is key.
+
+This hybrid strategy showcases the ability to choose the right tool for the job, balancing fine-grained control with high-level abstraction.
