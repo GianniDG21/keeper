@@ -59,3 +59,13 @@ These features help maintain the customer relationship after the sale, a crucial
 ### ACKNOWLEDGMENTS
 
 If you've taken the time to review this project, thank you. This marks my first major portfolio piece and, I hope, the first of many more to come. It represents months of dedicated effort to acquire the skills necessary to start my career in software development.
+
+---
+
+### DESIGN DECISIONS
+
+#### Data Return Strategy
+
+For API responses and database queries, this project returns slices of struct values (e.g., `[]models.Dealership`) instead of slices of pointers (e.g., `[]*models.Dealership`).  
+This choice ensures that API consumers cannot accidentally modify the original data, improving safety and predictability.  
+While using pointers can be more efficient for very large structs, in this context the data structures are small enough that the safety and clarity benefits outweigh the minor performance cost.

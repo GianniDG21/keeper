@@ -9,12 +9,10 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-// PostgresStore è la nostra implementazione concreta dell'interfaccia Store.
 type PostgresStore struct {
 	db *sql.DB
 }
 
-// NewPostgresStore crea una nuova istanza di PostgresStore.
 func NewPostgresStore(connString string) (*PostgresStore, error) {
 	db, err := sql.Open("pgx", connString)
 	if err != nil {
@@ -30,24 +28,34 @@ func NewPostgresStore(connString string) (*PostgresStore, error) {
 	return &PostgresStore{db: db}, nil
 }
 
-// GetDealerships è il primo metodo che implementa parte dell'interfaccia Store.
-func (s *PostgresStore) GetDealerships() ([]*models.Dealership, error) {
-	rows, err := s.db.Query(`SELECT id_dealership, postal_code, city, address, phone FROM dealership`)
+// SQL Queries
+
+// DEALERSHIP QUERIES
+func (s *PostgresStore) CreateDealership() ([]models.Dealership, error) {
+	query := `INSERT INTO Dealership (postal_code, city, address, phone) VALUES ($1, $2, $3, $4) RETURNING id_dealership`
+
+	
+
+func (s *PostgresStore) GetAllDealerships() ([]models.Dealership, error) {
+	query := `SELECT id_dealership, postal_code, city, address, phone FROM Dealership`
+
+	rows, err := s.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var dealerships []*models.Dealership
+	var dealerships []models.Dealership
 	for rows.Next() {
-		dealership := new(models.Dealership)
-		if err := rows.Scan(
+		var dealership models.Dealership
+		err := rows.Scan(
 			&dealership.ID_Dealership,
 			&dealership.PostalCode,
 			&dealership.City,
 			&dealership.Address,
 			&dealership.Phone,
-		); err != nil {
+		)
+		if err != nil {
 			return nil, err
 		}
 		dealerships = append(dealerships, dealership)
