@@ -12,27 +12,27 @@ type Store interface {
 
 	//-----Employee Methods-----
 	CreateEmployee(employee *models.Employee) (int, error)
-	GetEmployees() ([]models.Employee, error)
+	GetEmployees() ([]*models.Employee, error)
 	UpdateEmployee(id int, employee *models.Employee) error
 	DeleteEmployee(id int) error
 
 	//-----Employment Methods-----
 	CreateEmployment(employment *models.Employment) (int, error)
-	GetEmployments() ([]models.Employment, error)
+	GetEmployments() ([]*models.Employment, error)
 	UpdateEmployment(id int, employment *models.Employment) error
 	DeleteEmployment(id int) error
 
 	//-----Client Methods-----
 	CreateClient(client *models.Client) (int, error)
-	GetClients() ([]models.Client, error)
+	GetClients() ([]*models.Client, error)
 	UpdateClient(id int, client *models.Client) error
 	DeleteClient(id int) error
 
 	//-----CarPark Methods-----
 	CreateCarPark(carPark *models.CarPark) (int, error)
-	GetCarParks() ([]models.CarPark, error)
+	GetCarParks() ([]*models.CarPark, error)
 	UpdateCarPark(id int, carPark *models.CarPark) error
-	DeleteCarPark(vin string) error
+	DeleteCarPark(id int) error
 
 	//-----Order Methods-----
 	CreateOrder(order *models.Order) (int, error)

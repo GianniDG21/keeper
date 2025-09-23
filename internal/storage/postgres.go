@@ -5,27 +5,54 @@ import (
 	"database/sql"
 	"keeper/internal/models"
 	"log"
+	"gorm.io/gorm"
+	"gorm.io/driver/postgres"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type PostgresStore struct {
 	db *sql.DB
+	gormDB *gorm.DB
+}
+// I have created this helper function to reduce code duplication, following DRY principle
+func checkResult(result *gorm.DB) error {
+	// 1. Check for generic GORM errors
+	if result.Error != nil {
+		return result.Error
+	}
+
+	// 2. Check if no rows were affected (ID not found)
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	// 3. If everything went well, there is no error
+	return nil
 }
 
 func NewPostgresStore(connString string) (*PostgresStore, error) {
-	db, err := sql.Open("pgx", connString)
+	// 1. Apriamo la connessione principale con GORM
+	gormDB, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
-	if err := db.Ping(); err != nil {
+	// 2. Estraiamo la connessione *sql.DB sottostante da GORM
+	sqlDB, err := gormDB.DB()
+	if err != nil {
 		return nil, err
 	}
+    
+    // 3. Facciamo un Ping per verificare che la connessione standard sia viva
+	if err := sqlDB.Ping(); err != nil {
+		return nil, err
+	}
+	
+	log.Println("Database connected successfully (GORM & standard SQL)")
 
-	log.Println("Database connected successfully")
-
-	return &PostgresStore{db: db}, nil
+	// 4. Restituiamo uno store con entrambi i campi popolati
+	return &PostgresStore{db: sqlDB, gormDB: gormDB}, nil
 }
 
 // SQL Queries
@@ -133,3 +160,94 @@ func (s *PostgresStore) DeleteDealership(id int) error {
 // this will simplify the code, improve security, and enhance maintainability
 // I've decided to do Dealership's methods as an example to have a solid base
 
+// EMPLOYEE QUERIES
+func (s *PostgresStore) CreateEmployee(employee *models.Employee) (int, error) {
+	result := s.gormDB.Create(employee)
+	return employee.ID_Employee, result.Error
+}
+
+func (s *PostgresStore) GetEmployees() ([]*models.Employee, error) {
+	var employees []*models.Employee
+	result := s.gormDB.Find(&employees)
+	return employees, result.Error
+}
+
+func (s *PostgresStore) UpdateEmployee(id int, employee *models.Employee) error {
+	employee.ID_Employee = id
+	result := s.gormDB.Save(employee)
+	return checkResult(result)
+}
+
+func (s *PostgresStore) DeleteEmployee(id int) error {
+	result := s.gormDB.Delete(&models.Employee{}, id)
+	return checkResult(result)
+}
+
+// EMPLOYMENT QUERIES
+func (s *PostgresStore) CreateEmployment(employment *models.Employment) (int, error) {
+	result := s.gormDB.Create(employment)
+	return employment.ID_Employment, result.Error
+}
+
+func (s *PostgresStore) GetEmployments() ([]*models.Employment, error) {
+	var employments []*models.Employment
+	result := s.gormDB.Find(&employments)
+	return employments, result.Error
+}
+
+func (s *PostgresStore) UpdateEmployment(id int, employment *models.Employment) error {
+	employment.ID_Employment = id
+	result := s.gormDB.Save(employment)
+	return checkResult(result)
+}
+
+func (s *PostgresStore) DeleteEmployment(id int) error {
+	result := s.gormDB.Delete(&models.Employment{}, id)
+	return checkResult(result)
+}
+
+// CLIENT QUERIES
+func (s *PostgresStore) CreateClient(client *models.Client) (int, error) {
+	result := s.gormDB.Create(client)
+	return client.ID_Client, result.Error
+}
+
+func (s *PostgresStore) GetClients() ([]*models.Client, error) {
+	var clients []*models.Client
+	result := s.gormDB.Find(&clients)
+	return clients, result.Error
+}
+
+func (s *PostgresStore) UpdateClient(id int, client *models.Client) error {
+	client.ID_Client = id
+	result := s.gormDB.Save(client)
+	return checkResult(result)
+}	
+
+func (s *PostgresStore) DeleteClient(id int) error {
+	result := s.gormDB.Delete(&models.Client{}, id)
+	return checkResult(result)
+}
+
+// CARPARK QUERIES
+func (s *PostgresStore) CreateCarPark(carPark *models.CarPark) (int, error) {
+	result := s.gormDB.Create(carPark)
+	return result.Error
+}
+
+func (s *PostgresStore) GetCarParks() ([]*models.CarPark, error) {
+	var carParks []*models.CarPark
+	result := s.gormDB.Find(&carParks)
+	return carParks, result.Error
+}
+
+func (s *PostgresStore) UpdateCarPark(id int, carPark *models.CarPark) error {
+	carPark.ID_Dealership = id
+	result := s.gormDB.Save(carPark)
+	return checkResult(result)
+}
+
+func (s *PostgresStore) DeleteCarPark(vin string) error {
+	result := s.gormDB.Delete(&models.CarPark{}, "vin = ?", vin)
+	return checkResult(result)
+}
