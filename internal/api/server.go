@@ -21,14 +21,30 @@ func NewAPIServer(listenAddr string, store storage.Store) *APIServer {
 
 // Run avvia il server HTTP e registra tutte le rotte (gli endpoint).
 func (s *APIServer) Run() {
-	// Creiamo un nuovo router. Sarà il nostro "centralino" per le richieste.
 	router := http.NewServeMux()
 
-	// Registriamo l'endpoint di health check.
-	// Diciamo al router: "Quando ricevi una richiesta GET a /healthcheck,
-	// esegui la funzione handleHealthCheck".
 	router.HandleFunc("GET /healthcheck", s.handleHealthCheck)
 
+
+	// Dealerships endpoints //
+	router.HandleFunc("POST /dealerships", s.handleCreateDealership)
+	router.HandleFunc("GET /dealerships", s.handleGetDealerships)
+	router.HandleFunc("PUT /dealerships/{id}", s.handleUpdateDealership)
+	router.HandleFunc("DELETE /dealerships/{id}", s.handleDeleteDealership)
+
+	// Employee endpoints //
+	router.HandleFunc("POST /employees", s.handleCreateEmployee)
+	router.HandleFunc("GET /employees", s.handleGetEmployee)
+	router.HandleFunc("PUT /employees/{id}", s.handleUpdateEmployee)
+	router.HandleFunc("DELETE /employees/{id}", s.handleDeleteEmployee)
+
+	// Employment endpoints //
+	router.HandleFunc("POST /employments", s.handleCreateEmployment)
+	router.HandleFunc("GET /employments", s.handleGetEmployments)
+	router.HandleFunc("PUT /employments/{id}", s.handleUpdateEmployment)
+	router.HandleFunc("DELETE /employments/{id}", s.handleDeleteEmployment)
+
+	
 	log.Println("JSON API server running on port", s.listenAddr)
 
 	err := http.ListenAndServe(s.listenAddr, router)

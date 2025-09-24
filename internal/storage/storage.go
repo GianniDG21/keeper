@@ -6,13 +6,13 @@ import "keeper/internal/models"
 type Store interface {
 	//-----Dealership Methods-----
 	CreateDealership(dealership *models.Dealership) (int, error)
-	GetDealerships() ([]models.Dealership, error)
+	GetDealerships() ([]*models.Dealership, error)
 	UpdateDealership(id int, dealership *models.Dealership) error
 	DeleteDealership(id int) error
 
 	//-----Employee Methods-----
 	CreateEmployee(employee *models.Employee) (int, error)
-	GetEmployees() ([]*models.Employee, error)
+	GetEmployee() ([]*models.Employee, error)
 	UpdateEmployee(id int, employee *models.Employee) error
 	DeleteEmployee(id int) error
 

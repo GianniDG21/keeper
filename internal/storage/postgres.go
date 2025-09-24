@@ -18,19 +18,18 @@ type PostgresStore struct {
 	gormDB *gorm.DB
 }
 
-// I have created this helper function to reduce code duplication, following DRY principle
-func checkResult(result *gorm.DB) error {
-	// 1. Check for generic GORM errors
+func checkResult(result *gorm.DB) error { // This function checks the result of a GORM operation
+	// Check for generic GORM errors
 	if result.Error != nil {
 		return result.Error
 	}
 
-	// 2. Check if no rows were affected (ID not found)
+	// Check if no rows were affected (ID not found)
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
 
-	// 3. If everything went well, there is no error
+	// If everything went well, there is no error
 	return nil
 }
 
@@ -62,19 +61,19 @@ func NewPostgresStore(connString string) (*PostgresStore, error) {
 
 // DEALERSHIP QUERIES
 func (s *PostgresStore) CreateDealership(dealership *models.Dealership) (int, error) {
-	query := `INSERT INTO dealership (postal_code, city, address, phone) 
-		VALUES ($1, $2, $3, $4) 
-		RETURNING id_dealership`
+	query := `INSERT INTO dealership (postalcode, city, address, phone) 
+			  VALUES ($1, $2, $3, $4) 
+			  RETURNING id_dealership`
 
 	var newID int
-
+	// MANCAVA QUESTO .Scan(&newID)
 	err := s.db.QueryRow(
 		query,
 		dealership.PostalCode,
 		dealership.City,
 		dealership.Address,
 		dealership.Phone,
-	)
+	).Scan(&newID)
 
 	if err != nil {
 		return 0, err
@@ -83,18 +82,17 @@ func (s *PostgresStore) CreateDealership(dealership *models.Dealership) (int, er
 	return newID, nil
 }
 
-func (s *PostgresStore) GetAllDealerships() ([]models.Dealership, error) {
-	query := `SELECT id_dealership, postal_code, city, address, phone FROM dealership`
-
+func (s *PostgresStore) GetDealerships() ([]*models.Dealership, error) {
+	query := `SELECT id_dealership, postalcode, city, address, phone FROM dealership`
 	rows, err := s.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var dealerships []models.Dealership
+	var dealerships []*models.Dealership
 	for rows.Next() {
-		var dealership models.Dealership
+		dealership := new(models.Dealership)
 		err := rows.Scan(
 			&dealership.ID_Dealership,
 			&dealership.PostalCode,
@@ -107,13 +105,12 @@ func (s *PostgresStore) GetAllDealerships() ([]models.Dealership, error) {
 		}
 		dealerships = append(dealerships, dealership)
 	}
-
 	return dealerships, nil
 }
 
 func (s *PostgresStore) UpdateDealership(id int, dealership *models.Dealership) error {
 	query := `UPDATE dealership 
-              SET postal_code = $1, city = $2, address = $3, phone = $4 
+              SET postalcode = $1, city = $2, address = $3, phone = $4 
               WHERE id_dealership = $5`
 
 	result, err := s.db.Exec(
@@ -125,19 +122,19 @@ func (s *PostgresStore) UpdateDealership(id int, dealership *models.Dealership) 
 		id,
 	)
 	if err != nil {
-		return err // Corretto: restituisce solo l'errore
+		return err
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return err // Corretto: restituisce solo l'errore
+		return err
 	}
 
 	if rowsAffected == 0 {
 		return fmt.Errorf("nessuna concessionaria trovata con id %d", id)
 	}
 
-	return nil // Corretto: in caso di successo, restituisce nil (nessun errore)
+	return nil
 }
 
 func (s *PostgresStore) DeleteDealership(id int) error {
@@ -169,10 +166,10 @@ func (s *PostgresStore) CreateEmployee(employee *models.Employee) (int, error) {
 	return employee.ID_Employee, result.Error
 }
 
-func (s *PostgresStore) GetEmployees() ([]*models.Employee, error) {
-	var employees []*models.Employee
-	result := s.gormDB.Find(&employees)
-	return employees, result.Error
+func (s *PostgresStore) GetEmployee() ([]*models.Employee, error) {
+	var employee []*models.Employee
+	result := s.gormDB.Find(&employee)
+	return employee, result.Error
 }
 
 func (s *PostgresStore) UpdateEmployee(id int, employee *models.Employee) error {
@@ -235,7 +232,7 @@ func (s *PostgresStore) DeleteClient(id int) error {
 // CARPARK QUERIES
 func (s *PostgresStore) CreateCarPark(carPark *models.CarPark) (int, error) {
 	result := s.gormDB.Create(carPark)
-	return result.Error
+	return carPark.ID_Car, result.Error
 }
 
 func (s *PostgresStore) GetCarParks() ([]*models.CarPark, error) {
@@ -245,13 +242,13 @@ func (s *PostgresStore) GetCarParks() ([]*models.CarPark, error) {
 }
 
 func (s *PostgresStore) UpdateCarPark(id int, carPark *models.CarPark) error {
-	carPark.ID_Dealership = id
+	carPark.ID_Car = id
 	result := s.gormDB.Save(carPark)
 	return checkResult(result)
 }
 
-func (s *PostgresStore) DeleteCarPark(vin string) error {
-	result := s.gormDB.Delete(&models.CarPark{}, "vin = ?", vin)
+func (s *PostgresStore) DeleteCarPark(id int) error {
+	result := s.gormDB.Delete(&models.CarPark{}, id)
 	return checkResult(result)
 }
 

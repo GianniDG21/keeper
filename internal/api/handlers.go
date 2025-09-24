@@ -1,13 +1,213 @@
-package api 
+package api
 
 import (
 	"encoding/json"
+	"errors"
+	"keeper/internal/models"
 	"net/http"
+	"strconv"
 )
 
-//Function to check the server status
+// utils.writeJSON and utils.writeError are utility functions for writing JSON responses and error messages to the HTTP response writer.
+
+// Function to check the server status
 func (h *APIServer) handleHealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "available"})
+}
+
+// Dealerships Handlers //
+func (s *APIServer) handleCreateDealership(w http.ResponseWriter, r *http.Request) {
+	var newDealership models.Dealership
+	if err := json.NewDecoder(r.Body).Decode(&newDealership); err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		logError(r, err)
+		return
+	}
+	newID, err := s.store.CreateDealership(&newDealership)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]int{"id": newID})
+}
+
+func (s *APIServer) handleGetDealerships(w http.ResponseWriter, r *http.Request) {
+	dealerships, err := s.store.GetDealerships()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, dealerships)
+}
+
+func (s *APIServer) handleUpdateDealership(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		logError(r, err)
+		return
+	}
+	var updatedDealership models.Dealership
+	if err := json.NewDecoder(r.Body).Decode(&updatedDealership); err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		logError(r, err)
+		return
+	}
+	if err := s.store.UpdateDealership(id, &updatedDealership); err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, updatedDealership)
+}
+
+func (s *APIServer) handleDeleteDealership(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		logError(r, err)
+		return
+	}
+	if err := s.store.DeleteDealership(id); err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusNoContent, nil)
+}
+
+// Employees Handlers //
+func (s *APIServer) handleCreateEmployee(w http.ResponseWriter, r *http.Request) {
+	var newEmployee models.Employee
+	if err := json.NewDecoder(r.Body).Decode(&newEmployee); err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		logError(r, err)
+		return
+	}
+	newID, err := s.store.CreateEmployee(&newEmployee)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]int{"id": newID})
+}
+
+func (s *APIServer) handleGetEmployee(w http.ResponseWriter, r *http.Request) {
+	employees, err := s.store.GetEmployee()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, employees)
+}
+
+func (s *APIServer) handleUpdateEmployee(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		logError(r, err)
+		return
+	}
+	var updatedEmployee models.Employee
+	if err := json.NewDecoder(r.Body).Decode(&updatedEmployee); err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		logError(r, err)
+		return
+	}
+	if err := s.store.UpdateEmployee(id, &updatedEmployee); err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, updatedEmployee)
+}
+
+func (s *APIServer) handleDeleteEmployee(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		logError(r, err)
+		return
+	}
+	if err := s.store.DeleteEmployee(id); err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusNoContent, nil)
+}
+
+// Employments Handlers //
+func (s *APIServer) handleCreateEmployment(w http.ResponseWriter, r *http.Request) {
+	var newEmployment models.Employment
+	if err := json.NewDecoder(r.Body).Decode(&newEmployment); err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		logError(r, err)
+		return
+	}
+	newID, err := s.store.CreateEmployment(&newEmployment)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]int{"id": newID})
+}
+
+func (s *APIServer) handleGetEmployments(w http.ResponseWriter, r *http.Request) {
+	employments, err := s.store.GetEmployments()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, employments)
+}
+
+func (s *APIServer) handleUpdateEmployment(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		logError(r, err)
+		return
+	}
+	var updatedEmployment models.Employment
+	if err := json.NewDecoder(r.Body).Decode(&updatedEmployment); err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		logError(r, err)
+		return
+	}
+	if err := s.store.UpdateEmployment(id, &updatedEmployment); err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, updatedEmployment)
+}
+
+func (s *APIServer) handleDeleteEmployment(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		logError(r, err)
+		return
+	}
+	if err := s.store.DeleteEmployment(id); err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusNoContent, nil)
 }

@@ -2,6 +2,7 @@ package models
 
 import (
 	"time"
+	"encoding/json"
 )
 
 
@@ -34,8 +35,39 @@ type Employment struct {
 	ID_Employment int        `json:"id_employment" gorm:"primaryKey;autoIncrement"`
 	ID_Employee   int        `json:"id_employee" gorm:"column:id_employee;not null"`
 	ID_Dealership int        `json:"id_dealership" gorm:"column:id_dealership;not null"`
-	StartDate     time.Time  `json:"start_date" gorm:"column:start_date;not null"`
-	EndDate       *time.Time `json:"end_date,omitempty" gorm:"column:end_date"`
+	StartDate     time.Time  `json:"startdate" gorm:"column:startdate;not null"`
+	EndDate       *time.Time `json:"enddate,omitempty" gorm:"column:enddate"`
+}
+func (e *Employment) UnmarshalJSON(data []byte) error {	// Custom UnmarshalJSON to handle date parsing
+	type Alias Employment
+	aux := &struct {
+		StartDate string  `json:"startdate"`
+		EndDate   *string `json:"enddate"`
+		*Alias
+	}{
+		Alias: (*Alias)(e),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	startDate, err := time.Parse("2006-01-02", aux.StartDate)
+	if err != nil {
+		return err
+	}
+	e.StartDate = startDate // 4. Inseriamo la data corretta nella struct originale.
+
+	// Facciamo lo stesso per EndDate, solo se è presente nel JSON.
+	if aux.EndDate != nil {
+		endDate, err := time.Parse("2006-01-02", *aux.EndDate)
+		if err != nil {
+			return err
+		}
+		e.EndDate = &endDate
+	}
+
+	return nil
 }
 
 type ClientType string //ClientType as Enum for Client struct
@@ -70,6 +102,7 @@ type CarPark struct {
 	Condition     CondType `json:"condition" gorm:"column:condition"`
 	Year          int      `json:"year" gorm:"column:year"`
 	KM            int      `json:"km" gorm:"column:km"`
+	Plate		 string   `json:"plate" gorm:"column:plate;unique"`
 }
 
 type OrderStatus string //OrderStatus as Enum for Order struct
@@ -98,4 +131,12 @@ type Appointment struct {
 	Date           time.Time `json:"date" gorm:"column:date;not null"`
 	Reason         string    `json:"reason" gorm:"column:reason"`
 	Note           *string   `json:"note,omitempty" gorm:"column:note"`
+}
+
+// TableName overrides the default table name for some structs
+func (Employee) TableName() string {
+  return "employee"
+}
+func (Employment) TableName() string {
+  return "employment"
 }
