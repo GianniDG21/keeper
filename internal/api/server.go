@@ -5,32 +5,31 @@ import (
 	"keeper/internal/storage"
 	"log"
 	"net/http"
-
-	"github.com/go-chi/chi/v5"          // <-- NUOVO IMPORT
-	"github.com/go-chi/chi/v5/middleware" // <-- NUOVO IMPORT
+	"github.com/go-playground/validator/v10"
+	"github.com/go-chi/chi/v5"          
+	"github.com/go-chi/chi/v5/middleware" 
 )
 
 type APIServer struct {
 	listenAddr string
 	store      storage.Store
+	validate  *validator.Validate
 }
 
-func NewAPIServer(listenAddr string, store storage.Store) *APIServer {
-	return &APIServer{
-		listenAddr: listenAddr,
-		store:      store,
-	}
+func NewAPIServer(listenAddr string, store storage.Store, validate *validator.Validate) *APIServer {
+    return &APIServer{
+        listenAddr: listenAddr,
+        store:      store,
+        validate:   validate, 
+    }
 }
 
 func (s *APIServer) Run() {
-	// 1. Creiamo un nuovo router usando chi
 	router := chi.NewRouter()
 
-	// 2. Aggiungiamo alcuni "middleware" standard e utili
-	router.Use(middleware.Logger)    // Logga ogni richiesta in arrivo
-	router.Use(middleware.Recoverer) // Gestisce eventuali "panic" e impedisce al server di crashare
+	router.Use(middleware.Logger)    
+	router.Use(middleware.Recoverer) 
 
-	// 3. Registriamo le rotte raggruppandole logicamente
 
 	router.Get("/healthcheck", s.handleHealthCheck) // GET /healthcheck
 
@@ -64,9 +63,17 @@ func (s *APIServer) Run() {
 
 	log.Println("JSON API server running on port", s.listenAddr)
 
-	// La chiamata per avviare il server rimane la stessa
+	
 	err := http.ListenAndServe(s.listenAddr, router)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+func (s *APIServer) validateRequest(w http.ResponseWriter, r *http.Request, data any) bool {
+	if err := s.validate.Struct(data); err != nil {
+		logError(r, err)
+		writeError(w, http.StatusBadRequest, err)
+		return false
+	}
+	return true
 }

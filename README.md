@@ -84,4 +84,8 @@ For more standard and repetitive CRUD operations on other entities, the GORM lib
 
 This hybrid strategy showcases the ability to choose the right tool for the job, balancing fine-grained control with high-level abstraction.
 
-####
+#### Advanced Routing with chi
+While Go's standard http.ServeMux is functional, the chi router was chosen for this project to provide a more powerful and organized routing layer. This choice allows for the logical grouping of related endpoints (e.g., all /employees routes are defined in a single block), which significantly improves the readability and maintainability of the server.go file. Furthermore, chi provides a simple and effective middleware system, used here for request logging and panic recovery, which are essential features for a production-ready API.
+
+#### Declarative Request Validation
+To ensure data integrity and keep handlers clean, request validation is handled by the go-playground/validator library. Instead of cluttering HTTP handlers with repetitive if/else blocks for each field, validation rules are declaratively defined using validate tags directly on the model structs. This co-locates a data structure with its validation rules, making the system easier to understand. Handlers remain focused on their core business logic, simply calling the validator on the decoded struct to enforce all rules in a single, clean step.

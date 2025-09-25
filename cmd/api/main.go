@@ -7,6 +7,7 @@ import (
 	"keeper/internal/api"
 	"keeper/internal/storage"
 	"github.com/joho/godotenv"
+	"github.com/go-playground/validator/v10"
 )
 
 func main() {
@@ -26,6 +27,7 @@ func main() {
 		log.Fatal("failed to connect to the database: ", err)
 	}
 
-	server := api.NewAPIServer(":8080", store)
+	validate := validator.New()
+	server := api.NewAPIServer(":8080", store, validate)
 	server.Run()
 }
