@@ -2,9 +2,12 @@
 package api
 
 import (
-	"keeper/internal/storage" // Assicurati che il path del modulo sia corretto
+	"keeper/internal/storage"
 	"log"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"          // <-- NUOVO IMPORT
+	"github.com/go-chi/chi/v5/middleware" // <-- NUOVO IMPORT
 )
 
 type APIServer struct {
@@ -19,34 +22,49 @@ func NewAPIServer(listenAddr string, store storage.Store) *APIServer {
 	}
 }
 
-// Run avvia il server HTTP e registra tutte le rotte (gli endpoint).
 func (s *APIServer) Run() {
-	router := http.NewServeMux()
+	// 1. Creiamo un nuovo router usando chi
+	router := chi.NewRouter()
 
-	router.HandleFunc("GET /healthcheck", s.handleHealthCheck)
+	// 2. Aggiungiamo alcuni "middleware" standard e utili
+	router.Use(middleware.Logger)    // Logga ogni richiesta in arrivo
+	router.Use(middleware.Recoverer) // Gestisce eventuali "panic" e impedisce al server di crashare
 
+	// 3. Registriamo le rotte raggruppandole logicamente
 
-	// Dealerships endpoints //
-	router.HandleFunc("POST /dealerships", s.handleCreateDealership)
-	router.HandleFunc("GET /dealerships", s.handleGetDealerships)
-	router.HandleFunc("PUT /dealerships/{id}", s.handleUpdateDealership)
-	router.HandleFunc("DELETE /dealerships/{id}", s.handleDeleteDealership)
+	router.Get("/healthcheck", s.handleHealthCheck) // GET /healthcheck
 
-	// Employee endpoints //
-	router.HandleFunc("POST /employees", s.handleCreateEmployee)
-	router.HandleFunc("GET /employees", s.handleGetEmployee)
-	router.HandleFunc("PUT /employees/{id}", s.handleUpdateEmployee)
-	router.HandleFunc("DELETE /employees/{id}", s.handleDeleteEmployee)
+	router.Route("/dealerships", func(r chi.Router) {
+		r.Post("/", s.handleCreateDealership)   // POST /dealerships
+		r.Get("/", s.handleGetDealerships)      // GET /dealerships
+		r.Put("/{id}", s.handleUpdateDealership)  // PUT /dealerships/{id}
+		r.Delete("/{id}", s.handleDeleteDealership) // DELETE /dealerships/{id}
+	})
 
-	// Employment endpoints //
-	router.HandleFunc("POST /employments", s.handleCreateEmployment)
-	router.HandleFunc("GET /employments", s.handleGetEmployments)
-	router.HandleFunc("PUT /employments/{id}", s.handleUpdateEmployment)
-	router.HandleFunc("DELETE /employments/{id}", s.handleDeleteEmployment)
+	router.Route("/employees", func(r chi.Router) {
+		r.Post("/", s.handleCreateEmployee)   // POST /employees
+		r.Get("/", s.handleGetEmployee)      // GET /employees
+		r.Put("/{id}", s.handleUpdateEmployee)  // PUT /employees/{id}
+		r.Delete("/{id}", s.handleDeleteEmployee) // DELETE /employees/{id}
+	})
 
-	
+	router.Route("/employments", func(r chi.Router) {
+		r.Post("/", s.handleCreateEmployment)   // POST /employments
+		r.Get("/", s.handleGetEmployments)      // GET /employments
+		r.Put("/{id}", s.handleUpdateEmployment)  // PUT /employments/{id}
+		r.Delete("/{id}", s.handleDeleteEmployment) // DELETE /employments/{id}
+	})
+
+	router.Route("/clients", func(r chi.Router) {
+		r.Post("/", s.handleCreateClient)   // POST /clients
+		r.Get("/", s.handleGetClients)      // GET /clients
+		r.Put("/{id}", s.handleUpdateClient)  // PUT /clients/{id}
+		r.Delete("/{id}", s.handleDeleteClient) // DELETE /clients/{id}
+	})
+
 	log.Println("JSON API server running on port", s.listenAddr)
 
+	// La chiamata per avviare il server rimane la stessa
 	err := http.ListenAndServe(s.listenAddr, router)
 	if err != nil {
 		log.Fatal(err)

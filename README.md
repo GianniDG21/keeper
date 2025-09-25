@@ -83,3 +83,5 @@ The core CRUD functionalities for primary entities (e.g., Dealership, CarPark) w
 For more standard and repetitive CRUD operations on other entities, the GORM library was integrated. This choice demonstrates the ability to leverage a modern ORM to increase development speed, reduce boilerplate code, and improve maintainability, simulating a real-world production environment where productivity is key.
 
 This hybrid strategy showcases the ability to choose the right tool for the job, balancing fine-grained control with high-level abstraction.
+
+####

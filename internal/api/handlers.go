@@ -211,3 +211,68 @@ func (s *APIServer) handleDeleteEmployment(w http.ResponseWriter, r *http.Reques
 	}
 	writeJSON(w, http.StatusNoContent, nil)
 }
+
+// Clients Handlers //
+func (s *APIServer) handleCreateClient(w http.ResponseWriter, r *http.Request) {
+	var newClient models.Client
+	if err := json.NewDecoder(r.Body).Decode(&newClient); err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		logError(r, err)
+		return
+	}
+	newID, err := s.store.CreateClient(&newClient)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusCreated, map[string]int{"id": newID})
+}
+
+func (s *APIServer) handleGetClients(w http.ResponseWriter, r *http.Request) {
+	clients, err := s.store.GetClients()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, clients)
+}
+
+func (s *APIServer) handleUpdateClient(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		logError(r, err)
+		return
+	}
+	var updatedClient models.Client
+	if err := json.NewDecoder(r.Body).Decode(&updatedClient); err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		logError(r, err)
+		return
+	}
+	if err := s.store.UpdateClient(id, &updatedClient); err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, updatedClient)
+}
+
+func (s *APIServer) handleDeleteClient(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		logError(r, err)
+		return
+	}
+	if err := s.store.DeleteClient(id); err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		logError(r, err)
+		return
+	}
+	writeJSON(w, http.StatusNoContent, nil)
+}
