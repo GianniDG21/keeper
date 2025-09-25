@@ -61,6 +61,27 @@ func (s *APIServer) Run() {
 		r.Delete("/{id}", s.handleDeleteClient) // DELETE /clients/{id}
 	})
 
+	router.Route("/car", func(r chi.Router) {
+		r.Post("/", s.handleCreateCar)   // POST /car
+		r.Get("/", s.handleGetCars)	  // GET /car
+		r.Put("/{id}", s.handleUpdateCar)  // PUT /car/{id}
+		r.Delete("/{id}", s.handleDeleteCar) // DELETE /car/{id}
+	})
+
+	router.Route("/orders", func(r chi.Router) {
+		r.Post("/", s.handleCreateOrder)   // POST /orders
+		r.Get("/", s.handleGetOrders)	  // GET /orders
+		r.Put("/{id}", s.handleUpdateOrder)  // PUT /orders/{id}
+		r.Delete("/{id}", s.handleDeleteOrder) // DELETE /orders/{id}
+	})
+
+	router.Route("/appointments", func(r chi.Router) {
+		r.Post("/", s.handleCreateAppointment)   // POST /appointments
+		r.Get("/", s.handleGetAppointments)	  // GET /appointments
+		r.Put("/{id}", s.handleUpdateAppointment)  // PUT /appointments/{id}
+		r.Delete("/{id}", s.handleDeleteAppointment) // DELETE /appointments/{id}
+	})
+
 	log.Println("JSON API server running on port", s.listenAddr)
 
 	

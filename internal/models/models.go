@@ -38,6 +38,7 @@ type Employment struct {
 	StartDate     time.Time  `json:"startdate" gorm:"column:startdate;not null" validate:"required"`
 	EndDate       *time.Time `json:"enddate,omitempty" gorm:"column:enddate"`
 }
+
 func (e *Employment) UnmarshalJSON(data []byte) error {	// Custom UnmarshalJSON to handle date parsing
 	type Alias Employment
 	aux := &struct {
@@ -72,12 +73,12 @@ func (e *Employment) UnmarshalJSON(data []byte) error {	// Custom UnmarshalJSON 
 type ClientType string //ClientType as Enum for Client struct
 const (
 	ClientTypeIndividual ClientType = "private"
-	ClientTypeCompany    ClientType = "business"
+	ClientTypeCompany    ClientType = "company"
 )
 
 type Client struct {
 	ID_Client  int        `json:"id_client" gorm:"primaryKey;autoIncrement"`
-	Type       ClientType `json:"type" gorm:"column:type" validate:"required,oneof=Private Business"`
+	Type       ClientType `json:"type" gorm:"column:type" validate:"required,oneof=Private Company"`
 	Phone      string     `json:"phone" gorm:"column:phone" validate:"required"`
 	TIN_VAT    string     `json:"tin_vat" gorm:"column:tin_vat;unique" validate:"required"`
 	Name       string     `json:"name" gorm:"column:name" validate:"required"`
@@ -99,14 +100,14 @@ type CarPark struct {
 	Brand         string   `json:"brand" gorm:"column:brand" validate:"required"`
 	Model         string   `json:"model" gorm:"column:model" validate:"required"`
 	Condition     CondType `json:"condition" gorm:"column:condition" validate:"required,oneof=new used"`
-	Year          int      `json:"year" gorm:"column:year" validate:"required,min=1886,max=2023"`
+	Year          int      `json:"year" gorm:"column:year" validate:"required,min=1886,max=2099"`
 	KM            int      `json:"km" gorm:"column:km"`
 	Plate		 string   `json:"plate" gorm:"column:plate;unique"`
 }
 
 type OrderStatus string //OrderStatus as Enum for Order struct
 const (
-	OrderStatusClient     OrderStatus = "client_pending"
+	OrderStatusClient     OrderStatus = "pending"
 	OrderStatusCompleted  OrderStatus = "completed"
 	OrderStatusCancelled  OrderStatus = "cancelled"
 	OrderStatusInProgress OrderStatus = "in_progress"
@@ -114,7 +115,7 @@ const (
 
 type Order struct {
 	ID_Order      int         `json:"id_order" gorm:"primaryKey;autoIncrement"`
-	Status        OrderStatus `json:"status" gorm:"column:status" validate:"required,oneof=client_pending completed cancelled in_progress"`
+	Status        OrderStatus `json:"status" gorm:"column:status" validate:"required,oneof=pending completed cancelled in_progress"`
 	ID_Client     int         `json:"id_client" gorm:"column:id_client;not null" validate:"required"`
 	ID_Employee   int         `json:"id_employee" gorm:"column:id_employee;not null" validate:"required"`
 	VIN           string      `json:"vin" gorm:"column:vin;not null" validate:"required,alphanum,len=17"`
@@ -129,7 +130,7 @@ type Appointment struct {
 	ID_Dealership  int       `json:"id_dealership" gorm:"column:id_dealership;not null" validate:"required"`
 	Date           time.Time `json:"date" gorm:"column:date;not null" validate:"required"`
 	Reason         string    `json:"reason" gorm:"column:reason" validate:"required"`
-	Note           *string   `json:"note,omitempty" gorm:"column:note"`
+	Note           *string   `json:"note,omitempty" gorm:"column:notes"`
 }
 
 // TableName overrides the default table name for some structs
@@ -141,4 +142,13 @@ func (Employment) TableName() string {
 }
 func (Client) TableName() string {
 	return "client"
+}
+func (CarPark) TableName() string {
+	return "car_park"
+}
+func (Order) TableName() string {
+	return "order"
+}
+func (Appointment) TableName() string {
+	return "appointment"
 }
