@@ -13,6 +13,8 @@ type Dealership struct {
 	Address       string `json:"address" validate:"required"`
 	Phone         string `json:"phone" validate:"required"`
 }
+
+// @swagger:enum Role
 type Role string //Role Type as Enum for Employee struct
 const (
 	RoleAssistant Role = "assistant"
@@ -69,7 +71,7 @@ func (e *Employment) UnmarshalJSON(data []byte) error {	// Custom UnmarshalJSON 
 
 	return nil
 } 
-
+// @swagger:enum ClientType
 type ClientType string //ClientType as Enum for Client struct
 const (
 	ClientTypeIndividual ClientType = "private"
@@ -87,6 +89,7 @@ type Client struct {
 	Profession *string    `json:"profession,omitempty" gorm:"column:profession"` //Pointer to allow null values
 }
 
+// @swagger:enum CondType
 type CondType string //CondType as Enum for CarPark struct
 const (
 	CondTypeNew  CondType = "new"
@@ -105,6 +108,7 @@ type CarPark struct {
 	Plate		 string   `json:"plate" gorm:"column:plate;unique"`
 }
 
+// @swagger:enum OrderStatus
 type OrderStatus string //OrderStatus as Enum for Order struct
 const (
 	OrderStatusClient     OrderStatus = "pending"
