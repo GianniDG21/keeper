@@ -2,11 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"keeper/internal/models"
 	"net/http"
-	"strconv"
-	"github.com/go-chi/chi/v5"
+	
 )
 
 // utils.writeJSON and utils.writeError are utility functions for writing JSON responses and error messages to the HTTP response writer.
@@ -84,10 +82,9 @@ func (s *APIServer) handleGetDealerships(w http.ResponseWriter, r *http.Request)
 // @Failure      500         {object}  map[string]string "Error: Internal server error"
 // @Router       /dealerships/{id} [put]
 func (s *APIServer) handleUpdateDealership(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -121,10 +118,9 @@ func (s *APIServer) handleUpdateDealership(w http.ResponseWriter, r *http.Reques
 // @Failure      500 {object}  map[string]string "Error: Internal server error"
 // @Router       /dealerships/{id} [delete]
 func (s *APIServer) handleDeleteDealership(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -197,10 +193,9 @@ func (s *APIServer) handleGetEmployee(w http.ResponseWriter, r *http.Request) {
 // @Failure      500       {object}  map[string]string
 // @Router       /employees/{id} [put]
 func (s *APIServer) handleUpdateEmployee(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -233,10 +228,9 @@ func (s *APIServer) handleUpdateEmployee(w http.ResponseWriter, r *http.Request)
 // @Failure      500 {object}  map[string]string
 // @Router       /employees/{id} [delete]
 func (s *APIServer) handleDeleteEmployee(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -312,10 +306,9 @@ func (s *APIServer) handleGetEmployments(w http.ResponseWriter, r *http.Request)
 // @Failure      500         {object}  map[string]string "Error: Internal server error"
 // @Router       /employments/{id} [put]
 func (s *APIServer) handleUpdateEmployment(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -349,10 +342,9 @@ func (s *APIServer) handleUpdateEmployment(w http.ResponseWriter, r *http.Reques
 // @Failure      500 {object}  map[string]string "Error: Internal server error"
 // @Router       /employments/{id} [delete]
 func (s *APIServer) handleDeleteEmployment(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -428,10 +420,9 @@ func (s *APIServer) handleGetClients(w http.ResponseWriter, r *http.Request) {
 // @Failure      500     {object}  map[string]string "Error: Internal server error"
 // @Router       /clients/{id} [put]
 func (s *APIServer) handleUpdateClient(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -465,10 +456,9 @@ func (s *APIServer) handleUpdateClient(w http.ResponseWriter, r *http.Request) {
 // @Failure      500 {object}  map[string]string "Error: Internal server error"
 // @Router       /clients/{id} [delete]
 func (s *APIServer) handleDeleteClient(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -543,10 +533,9 @@ func (s *APIServer) handleGetCars(w http.ResponseWriter, r *http.Request) {
 // @Failure      500      {object}  map[string]string "Error: Internal server error"
 // @Router       /vehicles/{id} [put]
 func (s *APIServer) handleUpdateCar(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -580,10 +569,9 @@ func (s *APIServer) handleUpdateCar(w http.ResponseWriter, r *http.Request) {
 // @Failure      500 {object}  map[string]string "Error: Internal server error"
 // @Router       /vehicles/{id} [delete]
 func (s *APIServer) handleDeleteCar(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -658,10 +646,9 @@ func (s *APIServer) handleGetOrders(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  map[string]string "Error: Internal server error"
 // @Router       /orders/{id} [put]
 func (s *APIServer) handleUpdateOrder(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -695,10 +682,9 @@ func (s *APIServer) handleUpdateOrder(w http.ResponseWriter, r *http.Request) {
 // @Failure      500 {object}  map[string]string "Error: Internal server error"
 // @Router       /orders/{id} [delete]
 func (s *APIServer) handleDeleteOrder(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -773,10 +759,9 @@ func (s *APIServer) handleGetAppointments(w http.ResponseWriter, r *http.Request
 // @Failure      500          {object}  map[string]string "Error: Internal server error"
 // @Router       /appointments/{id} [put]
 func (s *APIServer) handleUpdateAppointment(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
@@ -810,10 +795,9 @@ func (s *APIServer) handleUpdateAppointment(w http.ResponseWriter, r *http.Reque
 // @Failure      500 {object}  map[string]string "Error: Internal server error"
 // @Router       /appointments/{id} [delete]
 func (s *APIServer) handleDeleteAppointment(w http.ResponseWriter, r *http.Request) {
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(idStr)
+	id, err := getIDFromURL(r)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, errors.New("invalid ID format"))
+		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
