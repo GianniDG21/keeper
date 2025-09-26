@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-chi/chi/v5"          
-	"github.com/go-chi/chi/v5/middleware" 
+	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type APIServer struct {
@@ -26,12 +27,14 @@ func NewAPIServer(listenAddr string, store storage.Store, validate *validator.Va
 
 func (s *APIServer) Run() {
 	router := chi.NewRouter()
+	
 
 	router.Use(middleware.Logger)    
 	router.Use(middleware.Recoverer) 
 
 
 	router.Get("/healthcheck", s.handleHealthCheck) // GET /healthcheck
+	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	router.Route("/dealerships", func(r chi.Router) {
 		r.Post("/", s.handleCreateDealership)   // POST /dealerships
