@@ -1,5 +1,21 @@
 // cmd/api/main.go
+// in cmd/api/main.go
 package main
+
+// @title           KEEPER API
+// @version         1.0
+// @description     API for the KEEPER Dealership Management System.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   Gianni De Grossi
+// @contact.url    https://github.com/GianniDG21
+// @contact.email  giannidegrossi@gmail.com
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /
 
 import (
 	"log"
@@ -21,7 +37,6 @@ func main() {
 		log.Fatal("DATABASE_URL environment variable is not set")
 	}
 	
-	// Usiamo la nuova funzione NewPostgresStore
 	store, err := storage.NewPostgresStore(connString)
 	if err != nil {
 		log.Fatal("failed to connect to the database: ", err)
