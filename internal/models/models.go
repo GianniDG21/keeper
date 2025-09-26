@@ -1,8 +1,8 @@
 package models
 
 import (
-	"time"
 	"encoding/json"
+	"time"
 )
 
 
@@ -68,7 +68,7 @@ func (e *Employment) UnmarshalJSON(data []byte) error {	// Custom UnmarshalJSON 
 	}
 
 	return nil
-}
+} 
 
 type ClientType string //ClientType as Enum for Client struct
 const (
@@ -78,7 +78,7 @@ const (
 
 type Client struct {
 	ID_Client  int        `json:"id_client" gorm:"primaryKey;autoIncrement"`
-	Type       ClientType `json:"type" gorm:"column:type" validate:"required,oneof=Private Company"`
+	Type       ClientType `json:"type" gorm:"column:type" validate:"required,oneof=private company"`
 	Phone      string     `json:"phone" gorm:"column:phone" validate:"required"`
 	TIN_VAT    string     `json:"tin_vat" gorm:"column:tin_vat;unique" validate:"required"`
 	Name       string     `json:"name" gorm:"column:name" validate:"required"`
@@ -95,7 +95,7 @@ const (
 
 type CarPark struct {
 	ID_Car	      int      `json:"id_car" gorm:"primaryKey;autoIncrement"`
-	VIN           string   `json:"vin" gorm:"primaryKey;column:vin" validate:"required,alphanum,len=17"`
+	VIN           string   `json:"vin" gorm:"column:vin" validate:"required,alphanum,len=17"`
 	ID_Dealership int      `json:"id_dealership" gorm:"column:id_dealership;not null"`
 	Brand         string   `json:"brand" gorm:"column:brand" validate:"required"`
 	Model         string   `json:"model" gorm:"column:model" validate:"required"`

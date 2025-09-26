@@ -1,9 +1,1104 @@
 basePath: /
+definitions:
+  models.Appointment:
+    properties:
+      date:
+        type: string
+      id_appointment:
+        type: integer
+      id_client:
+        type: integer
+      id_dealership:
+        type: integer
+      id_employee:
+        type: integer
+      note:
+        type: string
+      reason:
+        type: string
+    required:
+    - date
+    - id_client
+    - id_dealership
+    - id_employee
+    - reason
+    type: object
+  models.CarPark:
+    properties:
+      brand:
+        type: string
+      condition:
+        allOf:
+        - $ref: '#/definitions/models.CondType'
+        enum:
+        - new
+        - used
+      id_car:
+        type: integer
+      id_dealership:
+        type: integer
+      km:
+        type: integer
+      model:
+        type: string
+      plate:
+        type: string
+      vin:
+        type: string
+      year:
+        maximum: 2099
+        minimum: 1886
+        type: integer
+    required:
+    - brand
+    - condition
+    - model
+    - vin
+    - year
+    type: object
+  models.Client:
+    properties:
+      companyname:
+        description: Pointer to allow null values
+        type: string
+      id_client:
+        type: integer
+      name:
+        type: string
+      phone:
+        type: string
+      profession:
+        description: Pointer to allow null values
+        type: string
+      surname:
+        description: Pointer to allow null values
+        type: string
+      tin_vat:
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/models.ClientType'
+        enum:
+        - private
+        - company
+    required:
+    - name
+    - phone
+    - tin_vat
+    - type
+    type: object
+  models.ClientType:
+    enum:
+    - private
+    - company
+    type: string
+    x-enum-varnames:
+    - ClientTypeIndividual
+    - ClientTypeCompany
+  models.CondType:
+    enum:
+    - new
+    - used
+    type: string
+    x-enum-varnames:
+    - CondTypeNew
+    - CondTypeUsed
+  models.Dealership:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      id_dealership:
+        type: integer
+      phone:
+        type: string
+      postal_code:
+        type: string
+    required:
+    - address
+    - city
+    - phone
+    type: object
+  models.Employee:
+    properties:
+      id_employee:
+        type: integer
+      name:
+        type: string
+      phone:
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/models.Role'
+        enum:
+        - assistant
+        - seller
+        - manager
+        - admin
+        - mechanic
+      surname:
+        type: string
+      tin:
+        type: string
+    required:
+    - name
+    - phone
+    - role
+    - surname
+    - tin
+    type: object
+  models.Employment:
+    properties:
+      enddate:
+        type: string
+      id_dealership:
+        type: integer
+      id_employee:
+        type: integer
+      id_employment:
+        type: integer
+      startdate:
+        type: string
+    required:
+    - id_dealership
+    - id_employee
+    - startdate
+    type: object
+  models.Order:
+    properties:
+      id_client:
+        type: integer
+      id_dealership:
+        type: integer
+      id_employee:
+        type: integer
+      id_order:
+        type: integer
+      last_update:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.OrderStatus'
+        enum:
+        - pending
+        - completed
+        - cancelled
+        - in_progress
+      vin:
+        type: string
+    required:
+    - id_client
+    - id_dealership
+    - id_employee
+    - status
+    - vin
+    type: object
+  models.OrderStatus:
+    enum:
+    - pending
+    - completed
+    - cancelled
+    - in_progress
+    type: string
+    x-enum-varnames:
+    - OrderStatusClient
+    - OrderStatusCompleted
+    - OrderStatusCancelled
+    - OrderStatusInProgress
+  models.Role:
+    enum:
+    - assistant
+    - seller
+    - manager
+    - admin
+    - mechanic
+    type: string
+    x-enum-varnames:
+    - RoleAssistant
+    - RoleSeller
+    - RoleManager
+    - RoleAdmin
+    - RoleMechanic
 host: localhost:8080
 info:
   contact: {}
   description: API for the KEEPER Dealership Management System.
   title: KEEPER API
   version: "1.0"
-paths: {}
+paths:
+  /appointments:
+    get:
+      description: Retrieves a list of all scheduled appointments.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Appointment'
+            type: array
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all Appointments
+      tags:
+      - Appointments
+    post:
+      consumes:
+      - application/json
+      description: Schedules a new appointment (e.g., test drive, consultation).
+      parameters:
+      - description: New Appointment Data
+        in: body
+        name: appointment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Appointment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns the ID of the newly created appointment
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: 'Error: Invalid request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new Appointment
+      tags:
+      - Appointments
+  /appointments/{id}:
+    delete:
+      description: Cancels and deletes an appointment by its ID.
+      parameters:
+      - description: Appointment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Error: Invalid ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete an Appointment
+      tags:
+      - Appointments
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing appointment by its ID (e.g., to reschedule).
+      parameters:
+      - description: Appointment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Appointment Data
+        in: body
+        name: appointment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Appointment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Appointment'
+        "400":
+          description: 'Error: Invalid ID or request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update an Appointment
+      tags:
+      - Appointments
+  /clients:
+    get:
+      description: Retrieves a list of all clients.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Client'
+            type: array
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List Clients
+      tags:
+      - Clients
+    post:
+      consumes:
+      - application/json
+      description: Registers a new client (private or business) in the system.
+      parameters:
+      - description: New Client Data
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/models.Client'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns the ID of the newly created client
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: 'Error: Invalid request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create Client
+      tags:
+      - Clients
+  /clients/{id}:
+    delete:
+      description: Deletes a client by their ID.
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Error: Invalid ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete Client
+      tags:
+      - Clients
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing client's data by their ID.
+      parameters:
+      - description: Client ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Client Data
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/models.Client'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Client'
+        "400":
+          description: 'Error: Invalid ID or request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update Client
+      tags:
+      - Clients
+  /dealerships:
+    get:
+      description: Retrieves a list of all dealership branches.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Dealership'
+            type: array
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all Dealerships
+      tags:
+      - Dealerships
+    post:
+      consumes:
+      - application/json
+      description: Adds a new dealership to the system from the provided JSON payload.
+      parameters:
+      - description: New Dealership Data
+        in: body
+        name: dealership
+        required: true
+        schema:
+          $ref: '#/definitions/models.Dealership'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns the ID of the newly created dealership
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: 'Error: Invalid request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new Dealership
+      tags:
+      - Dealerships
+  /dealerships/{id}:
+    delete:
+      description: Deletes a dealership by its ID.
+      parameters:
+      - description: Dealership ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Error: Invalid ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a Dealership
+      tags:
+      - Dealerships
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing dealership's data by its ID.
+      parameters:
+      - description: Dealership ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Dealership Data
+        in: body
+        name: dealership
+        required: true
+        schema:
+          $ref: '#/definitions/models.Dealership'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Dealership'
+        "400":
+          description: 'Error: Invalid ID or request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a Dealership
+      tags:
+      - Dealerships
+  /employees:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Employee'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List Employees
+      tags:
+      - Employees
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: New Employee
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/models.Employee'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create Employee
+      tags:
+      - Employees
+  /employees/{id}:
+    delete:
+      parameters:
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete Employee
+      tags:
+      - Employees
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Employee ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Employee Data
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/models.Employee'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Employee'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update Employee
+      tags:
+      - Employees
+  /employments:
+    get:
+      description: Retrieves a list of all employment records.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Employment'
+            type: array
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List Employments
+      tags:
+      - Employments
+    post:
+      consumes:
+      - application/json
+      description: Assigns an employee to a dealership, creating a new employment
+        record.
+      parameters:
+      - description: New Employment Data
+        in: body
+        name: employment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Employment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns the ID of the new employment record
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: 'Error: Invalid request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create Employment
+      tags:
+      - Employments
+  /employments/{id}:
+    delete:
+      description: Deletes an employment record by its ID.
+      parameters:
+      - description: Employment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Error: Invalid ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete Employment
+      tags:
+      - Employments
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing employment record by its ID (e.g., to set an
+        end date).
+      parameters:
+      - description: Employment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Employment Data
+        in: body
+        name: employment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Employment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Employment'
+        "400":
+          description: 'Error: Invalid ID or request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update Employment
+      tags:
+      - Employments
+  /healthcheck:
+    get:
+      description: Checks if the API server is running.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health Check
+      tags:
+      - Health
+  /orders:
+    get:
+      description: Retrieves a list of all sales orders.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Order'
+            type: array
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all Orders
+      tags:
+      - Orders
+    post:
+      consumes:
+      - application/json
+      description: Creates a new sales order, linking a client, employee, and vehicle.
+      parameters:
+      - description: New Order Data
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/models.Order'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns the ID of the newly created order
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: 'Error: Invalid request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new Order
+      tags:
+      - Orders
+  /orders/{id}:
+    delete:
+      description: Deletes a sales order by its ID.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Error: Invalid ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete an Order
+      tags:
+      - Orders
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing order's data (e.g., status) by its ID.
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Order Data
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/models.Order'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Order'
+        "400":
+          description: 'Error: Invalid ID or request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update an Order
+      tags:
+      - Orders
+  /vehicles:
+    get:
+      description: Retrieves a list of all vehicles in the car park.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CarPark'
+            type: array
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all Vehicles
+      tags:
+      - Vehicles
+    post:
+      consumes:
+      - application/json
+      description: Adds a new vehicle to the inventory.
+      parameters:
+      - description: New Vehicle Data
+        in: body
+        name: vehicle
+        required: true
+        schema:
+          $ref: '#/definitions/models.CarPark'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns the ID of the newly created vehicle
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: 'Error: Invalid request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add a new Vehicle
+      tags:
+      - Vehicles
+  /vehicles/{id}:
+    delete:
+      description: Deletes a vehicle from the inventory by its ID.
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Error: Invalid ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a Vehicle
+      tags:
+      - Vehicles
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing vehicle's data by its ID.
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Vehicle Data
+        in: body
+        name: vehicle
+        required: true
+        schema:
+          $ref: '#/definitions/models.CarPark'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CarPark'
+        "400":
+          description: 'Error: Invalid ID or request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a Vehicle
+      tags:
+      - Vehicles
 swagger: "2.0"

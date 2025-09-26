@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/go-chi/chi/v5"          
 	"github.com/go-chi/chi/v5/middleware"
+	_"keeper/docs" 
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
