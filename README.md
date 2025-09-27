@@ -12,7 +12,7 @@ This project is the result of a significant learning journey into modern backend
 
 This implementation is modeled for **DGAuto**, a fictional multi-brand car dealership with several branches. Currently, each branch manages its own vehicle stock, leading to synchronization issues and a lack of a unified, real-time view of the entire company's inventory.
 
-KEEPER serves as the **central nervous system** for the dealership's inventory, providing a reliable, single source of truth through a robust REST API. The design considers a role-based access control (RBAC) system to ensure that data can only be modified by authorized personnel, guaranteeing data integrity and security.
+KEEPER serves as the **central nervous system** for the dealership's inventory, providing a reliable, single source of truth through a robust REST API. The design considers a role-based access control (RBAC) system to ensure that data can only be modified by authorized personnel, guaranteeing data integrity and **security**.
 
 ---
 
