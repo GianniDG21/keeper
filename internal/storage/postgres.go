@@ -241,9 +241,9 @@ func (s *PostgresStore) GetCarParks() ([]*models.CarPark, error) {
 	return carParks, result.Error
 }
 
-func (s *PostgresStore) UpdateCarPark(id int, carPark *models.CarPark) error {
-	carPark.ID_Car = id
-	result := s.GormDB.Save(carPark)
+func (s *PostgresStore) PatchCarPark(id int, updates map[string]interface{}) error {
+	// Usiamo .Updates() che aggiorna solo i campi forniti nella struct
+	result := s.GormDB.Model(&models.CarPark{}).Where("id_car = ?", id).Updates(updates)
 	return checkResult(result)
 }
 

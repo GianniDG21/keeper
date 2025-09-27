@@ -31,7 +31,7 @@ type Store interface {
 	//-----CarPark Methods-----
 	CreateCarPark(carPark *models.CarPark) (int, error)
 	GetCarParks() ([]*models.CarPark, error)
-	UpdateCarPark(id int, carPark *models.CarPark) error
+	PatchCarPark(id int, updates map[string]interface{}) error
 	DeleteCarPark(id int) error
 
 	//-----Order Methods-----

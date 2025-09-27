@@ -532,7 +532,7 @@ func (s *APIServer) handleGetCars(w http.ResponseWriter, r *http.Request) {
 // @Failure      400      {object}  map[string]string "Error: Invalid ID or request payload"
 // @Failure      500      {object}  map[string]string "Error: Internal server error"
 // @Router       /vehicles/{id} [put]
-func (s *APIServer) handleUpdateCar(w http.ResponseWriter, r *http.Request) {
+func (s *APIServer) handlePatchCar(w http.ResponseWriter, r *http.Request) {
 	id, err := getIDFromURL(r)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err)
@@ -540,23 +540,24 @@ func (s *APIServer) handleUpdateCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var updatedCar models.CarPark
-	if err := json.NewDecoder(r.Body).Decode(&updatedCar); err != nil {
+	// 1. Decodifichiamo il JSON in una mappa, non in una struct
+	var updates map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
 		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
+    
+    // 2. NON eseguiamo più la validazione della struct, perché abbiamo una mappa
 
-	if !s.validateRequest(w, r, &updatedCar) {
-		return
-	}
-
-	if err := s.store.UpdateCarPark(id, &updatedCar); err != nil {
+	// 3. Passiamo la mappa direttamente allo store
+	if err := s.store.PatchCarPark(id, updates); err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return
 	}
-	writeJSON(w, http.StatusOK, updatedCar)
+
+	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
 }
 
 // @Summary      Delete a Vehicle

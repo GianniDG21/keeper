@@ -98,7 +98,7 @@ const (
 
 type CarPark struct {
 	ID_Car	      int      `json:"id_car" gorm:"primaryKey;autoIncrement"`
-	VIN           string   `json:"vin" gorm:"column:vin" validate:"required,alphanum,len=17"`
+	VIN           string   `json:"vin" gorm:"column:vin" validate:"omitempty,alphanum,len=17"`
 	ID_Dealership int      `json:"id_dealership" gorm:"column:id_dealership;not null"`
 	Brand         string   `json:"brand" gorm:"column:brand" validate:"required"`
 	Model         string   `json:"model" gorm:"column:model" validate:"required"`

@@ -4,6 +4,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"keeper/internal/models"
 	"keeper/internal/storage"
 	"net/http"
@@ -106,5 +107,86 @@ func TestGetDealershipsAPI(t *testing.T) {
 
 	if dealerships[0].City != "Lecce Seed" {
 		t.Errorf("città errata: ricevuta '%s', attesa 'Lecce Seed'", dealerships[0].City)
+	}
+}
+
+func TestPatchVehicleAPI(t *testing.T) {
+	// 1. SETUP
+	store := newTestDB(t)
+	server := newTestServer(t, store)
+	testServer := httptest.NewServer(server.Router)
+	defer testServer.Close()
+
+	// 2. SEED: Creiamo i dati di partenza necessari
+	// Prima una concessionaria per rispettare la foreign key
+	var dealershipID int
+	err := store.Db.QueryRow("INSERT INTO dealership (postalcode, city, address, phone) VALUES ('00000', 'Test', 'Test', '123') RETURNING id_dealership").Scan(&dealershipID)
+	if err != nil {
+		t.Fatalf("Impossibile inserire dealership di prova: %v", err)
+	}
+
+	// Ora il veicolo che andremo a modificare, e recuperiamo il suo ID
+	var vehicleID int
+	err = store.Db.QueryRow("INSERT INTO car_park (vin, id_dealership, brand, model, \"year\", km) VALUES ('TESTVINUPDATE0001', $1, 'Fiat', 'Panda', 2020, 50000) RETURNING id_car", dealershipID).Scan(&vehicleID)
+	if err != nil {
+		t.Fatalf("Impossibile inserire veicolo di prova: %v", err)
+	}
+
+	// 3. AZIONE: Eseguiamo la richiesta PATCH usando l'ID appena creato
+	payload := []byte(`{"km": 60000}`)
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/car/%d", testServer.URL, vehicleID), bytes.NewBuffer(payload))
+	if err != nil {
+		t.Fatalf("Impossibile creare la richiesta PATCH: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	
+	resp, err := testServer.Client().Do(req)
+	if err != nil {
+		t.Fatalf("Errore durante l'invio della richiesta PATCH: %s", err)
+	}
+	defer resp.Body.Close()
+
+	// 4. VERIFICA
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("status code errato: ricevuto %v, atteso %v", resp.StatusCode, http.StatusOK)
+	}
+
+}
+
+func TestDeleteEmployeeAPI(t *testing.T) {
+	store := newTestDB(t)
+	server := newTestServer(t, store)
+	testServer := httptest.NewServer(server.Router)
+	defer testServer.Close()
+
+	var employeeID int
+	err := store.Db.QueryRow("INSERT INTO employee (tin, name, surname, role) VALUES ('TESTTINDELETE01', 'Marco', 'Verdi', 'salesperson') RETURNING id_employee").Scan(&employeeID)
+	if err != nil {
+		t.Fatalf("Impossibile inserire dipendente di prova: %v", err)
+	}
+
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/employees/%d", testServer.URL, employeeID), nil)
+	if err != nil {
+		t.Fatalf("Impossibile creare la richiesta DELETE: %v", err)
+	}
+	
+	resp, err := testServer.Client().Do(req)
+	if err != nil {
+		t.Fatalf("Errore durante l'invio della richiesta DELETE: %s", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		t.Errorf("status code errato: ricevuto %v, atteso %v", resp.StatusCode, http.StatusNoContent)
+	}
+
+	var count int
+	err = store.Db.QueryRow("SELECT COUNT(*) FROM employee WHERE id_employee = $1", employeeID).Scan(&count)
+	if err != nil {
+		t.Fatalf("Errore nel controllare il DB dopo la cancellazione: %s", err)
+	}
+
+	if count != 0 {
+		t.Errorf("il record del dipendente esiste ancora nel DB, ma doveva essere cancellato")
 	}
 }

@@ -65,7 +65,7 @@ func NewAPIServer(listenAddr string, store storage.Store, validate *validator.Va
 	server.Router.Route("/car", func(r chi.Router) {
 		r.Post("/", server.handleCreateCar)   // POST /car
 		r.Get("/", server.handleGetCars)	  // GET /car
-		r.Put("/{id}", server.handleUpdateCar)  // PUT /car/{id}
+		r.Patch("/{id}", server.handlePatchCar)  // PATCH /car/{id}
 		r.Delete("/{id}", server.handleDeleteCar) // DELETE /car/{id}
 	})
 
