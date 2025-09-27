@@ -1,16 +1,13 @@
-# Docker for building and running a Go application
-# Multi-stage build to keep the final image small
-
 FROM golang:1.22-alpine as builder
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
-RUN GOWORK=off go mod tidy
+COPY vendor ./vendor
 
 COPY . .
 
-RUN go build -o /app/main ./cmd/api
+RUN go build -mod=vendor -o /app/main ./cmd/api
 
 FROM alpine:latest
 
