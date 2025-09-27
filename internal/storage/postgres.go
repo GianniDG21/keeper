@@ -14,8 +14,8 @@ import (
 )
 
 type PostgresStore struct {
-	db     *sql.DB
-	gormDB *gorm.DB
+	Db     *sql.DB
+	GormDB *gorm.DB
 }
 
 func checkResult(result *gorm.DB) error { // This function checks the result of a GORM operation
@@ -54,7 +54,7 @@ func NewPostgresStore(connString string) (*PostgresStore, error) {
 	log.Println("Database connected successfully (GORM & standard SQL)")
 
 	// 4. Restituiamo uno store con entrambi i campi popolati
-	return &PostgresStore{db: sqlDB, gormDB: gormDB}, nil
+	return &PostgresStore{Db: sqlDB, GormDB: gormDB}, nil
 }
 
 // SQL Queries
@@ -67,7 +67,7 @@ func (s *PostgresStore) CreateDealership(dealership *models.Dealership) (int, er
 
 	var newID int
 	// MANCAVA QUESTO .Scan(&newID)
-	err := s.db.QueryRow(
+	err := s.Db.QueryRow(
 		query,
 		dealership.PostalCode,
 		dealership.City,
@@ -84,7 +84,7 @@ func (s *PostgresStore) CreateDealership(dealership *models.Dealership) (int, er
 
 func (s *PostgresStore) GetDealerships() ([]*models.Dealership, error) {
 	query := `SELECT id_dealership, postalcode, city, address, phone FROM dealership`
-	rows, err := s.db.Query(query)
+	rows, err := s.Db.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -110,10 +110,10 @@ func (s *PostgresStore) GetDealerships() ([]*models.Dealership, error) {
 
 func (s *PostgresStore) UpdateDealership(id int, dealership *models.Dealership) error {
 	query := `UPDATE dealership 
-              SET postalcode = $1, city = $2, address = $3, phone = $4 
-              WHERE id_dealership = $5`
+			  SET postalcode = $1, city = $2, address = $3, phone = $4 
+			  WHERE id_dealership = $5`
 
-	result, err := s.db.Exec(
+	result, err := s.Db.Exec(
 		query,
 		dealership.PostalCode,
 		dealership.City,
@@ -139,7 +139,7 @@ func (s *PostgresStore) UpdateDealership(id int, dealership *models.Dealership) 
 
 func (s *PostgresStore) DeleteDealership(id int) error {
 	query := `DELETE FROM dealership WHERE id_dealership = $1`
-	result, err := s.db.Exec(query, id)
+	result, err := s.Db.Exec(query, id)
 	if err != nil {
 		return err
 	}
@@ -162,138 +162,138 @@ func (s *PostgresStore) DeleteDealership(id int) error {
 
 // EMPLOYEE QUERIES
 func (s *PostgresStore) CreateEmployee(employee *models.Employee) (int, error) {
-	result := s.gormDB.Create(employee)
+	result := s.GormDB.Create(employee)
 	return employee.ID_Employee, result.Error
 }
 
 func (s *PostgresStore) GetEmployee() ([]*models.Employee, error) {
 	var employee []*models.Employee
-	result := s.gormDB.Find(&employee)
+	result := s.GormDB.Find(&employee)
 	return employee, result.Error
 }
 
 func (s *PostgresStore) UpdateEmployee(id int, employee *models.Employee) error {
 	employee.ID_Employee = id
-	result := s.gormDB.Save(employee)
+	result := s.GormDB.Save(employee)
 	return checkResult(result)
 }
 
 func (s *PostgresStore) DeleteEmployee(id int) error {
-	result := s.gormDB.Delete(&models.Employee{}, id)
+	result := s.GormDB.Delete(&models.Employee{}, id)
 	return checkResult(result)
 }
 
 // EMPLOYMENT QUERIES
 func (s *PostgresStore) CreateEmployment(employment *models.Employment) (int, error) {
-	result := s.gormDB.Create(employment)
+	result := s.GormDB.Create(employment)
 	return employment.ID_Employment, result.Error
 }
 
 func (s *PostgresStore) GetEmployments() ([]*models.Employment, error) {
 	var employments []*models.Employment
-	result := s.gormDB.Find(&employments)
+	result := s.GormDB.Find(&employments)
 	return employments, result.Error
 }
 
 func (s *PostgresStore) UpdateEmployment(id int, employment *models.Employment) error {
 	employment.ID_Employment = id
-	result := s.gormDB.Save(employment)
+	result := s.GormDB.Save(employment)
 	return checkResult(result)
 }
 
 func (s *PostgresStore) DeleteEmployment(id int) error {
-	result := s.gormDB.Delete(&models.Employment{}, id)
+	result := s.GormDB.Delete(&models.Employment{}, id)
 	return checkResult(result)
 }
 
 // CLIENT QUERIES
 func (s *PostgresStore) CreateClient(client *models.Client) (int, error) {
-	result := s.gormDB.Create(client)
+	result := s.GormDB.Create(client)
 	return client.ID_Client, result.Error
 }
 
 func (s *PostgresStore) GetClients() ([]*models.Client, error) {
 	var clients []*models.Client
-	result := s.gormDB.Find(&clients)
+	result := s.GormDB.Find(&clients)
 	return clients, result.Error
 }
 
 func (s *PostgresStore) UpdateClient(id int, client *models.Client) error {
 	client.ID_Client = id
-	result := s.gormDB.Save(client)
+	result := s.GormDB.Save(client)
 	return checkResult(result)
 }
 
 func (s *PostgresStore) DeleteClient(id int) error {
-	result := s.gormDB.Delete(&models.Client{}, id)
+	result := s.GormDB.Delete(&models.Client{}, id)
 	return checkResult(result)
 }
 
 // CARPARK QUERIES
 func (s *PostgresStore) CreateCarPark(carPark *models.CarPark) (int, error) {
-	result := s.gormDB.Create(carPark)
+	result := s.GormDB.Create(carPark)
 	return carPark.ID_Car, result.Error
 }
 
 func (s *PostgresStore) GetCarParks() ([]*models.CarPark, error) {
 	var carParks []*models.CarPark
-	result := s.gormDB.Find(&carParks)
+	result := s.GormDB.Find(&carParks)
 	return carParks, result.Error
 }
 
 func (s *PostgresStore) UpdateCarPark(id int, carPark *models.CarPark) error {
 	carPark.ID_Car = id
-	result := s.gormDB.Save(carPark)
+	result := s.GormDB.Save(carPark)
 	return checkResult(result)
 }
 
 func (s *PostgresStore) DeleteCarPark(id int) error {
-	result := s.gormDB.Delete(&models.CarPark{}, id)
+	result := s.GormDB.Delete(&models.CarPark{}, id)
 	return checkResult(result)
 }
 
 // ORDER QUERIES
 func (s *PostgresStore) CreateOrder(order *models.Order) (int, error) {
-	result := s.gormDB.Create(order)
+	result := s.GormDB.Create(order)
 	return order.ID_Order, result.Error
 }
 
 func (s *PostgresStore) GetOrders() ([]*models.Order, error) {
 	var orders []*models.Order
-	result := s.gormDB.Find(&orders)
+	result := s.GormDB.Find(&orders)
 	return orders, result.Error
 }
 
 func (s *PostgresStore) UpdateOrder(id int, order *models.Order) error {
 	order.ID_Order = id
-	result := s.gormDB.Save(order)
+	result := s.GormDB.Save(order)
 	return checkResult(result)
 }
 
 func (s *PostgresStore) DeleteOrder(id int) error {
-	result := s.gormDB.Delete(&models.Order{}, id)
+	result := s.GormDB.Delete(&models.Order{}, id)
 	return checkResult(result)
 }
 
 // APPOINTMENT QUERIES
 func (s *PostgresStore) CreateAppointment(appointment *models.Appointment) (int, error) {
-	result := s.gormDB.Create(appointment)
+	result := s.GormDB.Create(appointment)
 	return appointment.ID_Appointment, result.Error
 }
 
 func (s *PostgresStore) GetAppointments() ([]*models.Appointment, error) {
 	var appointments []*models.Appointment
-	result := s.gormDB.Find(&appointments)
+	result := s.GormDB.Find(&appointments)
 	return appointments, result.Error
 }
 
 func (s *PostgresStore) UpdateAppointment(id int, appointment *models.Appointment) error {
 	appointment.ID_Appointment = id
-	result := s.gormDB.Save(appointment)
+	result := s.GormDB.Save(appointment)
 	return checkResult(result)
 }
 
 func (s *PostgresStore) DeleteAppointment(id int) error {
-	result := s.gormDB.Delete(&models.Appointment{}, id)
+	result := s.GormDB.Delete(&models.Appointment{}, id)
 	return checkResult(result)
 }

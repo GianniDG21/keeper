@@ -16,83 +16,79 @@ type APIServer struct {
 	listenAddr string
 	store      storage.Store
 	validate  *validator.Validate
+	Router     *chi.Mux
 }
 
 func NewAPIServer(listenAddr string, store storage.Store, validate *validator.Validate) *APIServer {
-    return &APIServer{
+    server := &APIServer{
         listenAddr: listenAddr,
         store:      store,
         validate:   validate, 
+		Router:     chi.NewRouter(),
     }
-}
+
+	server.Router.Use(middleware.Logger)    
+	server.Router.Use(middleware.Recoverer) 
+
+
+	server.Router.Get("/healthcheck", server.handleHealthCheck) // GET /healthcheck
+	server.Router.Get("/swagger/*", httpSwagger.WrapHandler)
+
+	server.Router.Route("/dealerships", func(r chi.Router) {
+		r.Post("/", server.handleCreateDealership)   // POST /dealerships
+		r.Get("/", server.handleGetDealerships)      // GET /dealerships
+		r.Put("/{id}", server.handleUpdateDealership)  // PUT /dealerships/{id}
+		r.Delete("/{id}", server.handleDeleteDealership) // DELETE /dealerships/{id}
+	})
+
+	server.Router.Route("/employees", func(r chi.Router) {
+		r.Post("/", server.handleCreateEmployee)   // POST /employees
+		r.Get("/", server.handleGetEmployee)      // GET /employees
+		r.Put("/{id}", server.handleUpdateEmployee)  // PUT /employees/{id}
+		r.Delete("/{id}", server.handleDeleteEmployee) // DELETE /employees/{id}
+	})
+
+	server.Router.Route("/employments", func(r chi.Router) {
+		r.Post("/", server.handleCreateEmployment)   // POST /employments
+		r.Get("/", server.handleGetEmployments)      // GET /employments
+		r.Put("/{id}", server.handleUpdateEmployment)  // PUT /employments/{id}
+		r.Delete("/{id}", server.handleDeleteEmployment) // DELETE /employments/{id}
+	})
+
+	server.Router.Route("/clients", func(r chi.Router) {
+		r.Post("/", server.handleCreateClient)   // POST /clients
+		r.Get("/", server.handleGetClients)      // GET /clients
+		r.Put("/{id}", server.handleUpdateClient)  // PUT /clients/{id}
+		r.Delete("/{id}", server.handleDeleteClient) // DELETE /clients/{id}
+	})
+
+	server.Router.Route("/car", func(r chi.Router) {
+		r.Post("/", server.handleCreateCar)   // POST /car
+		r.Get("/", server.handleGetCars)	  // GET /car
+		r.Put("/{id}", server.handleUpdateCar)  // PUT /car/{id}
+		r.Delete("/{id}", server.handleDeleteCar) // DELETE /car/{id}
+	})
+
+	server.Router.Route("/orders", func(r chi.Router) {
+		r.Post("/", server.handleCreateOrder)   // POST /orders
+		r.Get("/", server.handleGetOrders)	  // GET /orders
+		r.Put("/{id}", server.handleUpdateOrder)  // PUT /orders/{id}
+		r.Delete("/{id}", server.handleDeleteOrder) // DELETE /orders/{id}
+	})
+
+	server.Router.Route("/appointments", func(r chi.Router) {
+		r.Post("/", server.handleCreateAppointment)   // POST /appointments
+		r.Get("/", server.handleGetAppointments)	  // GET /appointments
+		r.Put("/{id}", server.handleUpdateAppointment)  // PUT /appointments/{id}
+		r.Delete("/{id}", server.handleDeleteAppointment) // DELETE /appointments/{id}
+	})
+	return server
+} 
 
 func (s *APIServer) Run() {
-	router := chi.NewRouter()
-	
-
-	router.Use(middleware.Logger)    
-	router.Use(middleware.Recoverer) 
-
-
-	router.Get("/healthcheck", s.handleHealthCheck) // GET /healthcheck
-	router.Get("/swagger/*", httpSwagger.WrapHandler)
-
-	router.Route("/dealerships", func(r chi.Router) {
-		r.Post("/", s.handleCreateDealership)   // POST /dealerships
-		r.Get("/", s.handleGetDealerships)      // GET /dealerships
-		r.Put("/{id}", s.handleUpdateDealership)  // PUT /dealerships/{id}
-		r.Delete("/{id}", s.handleDeleteDealership) // DELETE /dealerships/{id}
-	})
-
-	router.Route("/employees", func(r chi.Router) {
-		r.Post("/", s.handleCreateEmployee)   // POST /employees
-		r.Get("/", s.handleGetEmployee)      // GET /employees
-		r.Put("/{id}", s.handleUpdateEmployee)  // PUT /employees/{id}
-		r.Delete("/{id}", s.handleDeleteEmployee) // DELETE /employees/{id}
-	})
-
-	router.Route("/employments", func(r chi.Router) {
-		r.Post("/", s.handleCreateEmployment)   // POST /employments
-		r.Get("/", s.handleGetEmployments)      // GET /employments
-		r.Put("/{id}", s.handleUpdateEmployment)  // PUT /employments/{id}
-		r.Delete("/{id}", s.handleDeleteEmployment) // DELETE /employments/{id}
-	})
-
-	router.Route("/clients", func(r chi.Router) {
-		r.Post("/", s.handleCreateClient)   // POST /clients
-		r.Get("/", s.handleGetClients)      // GET /clients
-		r.Put("/{id}", s.handleUpdateClient)  // PUT /clients/{id}
-		r.Delete("/{id}", s.handleDeleteClient) // DELETE /clients/{id}
-	})
-
-	router.Route("/car", func(r chi.Router) {
-		r.Post("/", s.handleCreateCar)   // POST /car
-		r.Get("/", s.handleGetCars)	  // GET /car
-		r.Put("/{id}", s.handleUpdateCar)  // PUT /car/{id}
-		r.Delete("/{id}", s.handleDeleteCar) // DELETE /car/{id}
-	})
-
-	router.Route("/orders", func(r chi.Router) {
-		r.Post("/", s.handleCreateOrder)   // POST /orders
-		r.Get("/", s.handleGetOrders)	  // GET /orders
-		r.Put("/{id}", s.handleUpdateOrder)  // PUT /orders/{id}
-		r.Delete("/{id}", s.handleDeleteOrder) // DELETE /orders/{id}
-	})
-
-	router.Route("/appointments", func(r chi.Router) {
-		r.Post("/", s.handleCreateAppointment)   // POST /appointments
-		r.Get("/", s.handleGetAppointments)	  // GET /appointments
-		r.Put("/{id}", s.handleUpdateAppointment)  // PUT /appointments/{id}
-		r.Delete("/{id}", s.handleDeleteAppointment) // DELETE /appointments/{id}
-	})
-
 	log.Println("JSON API server running on port", s.listenAddr)
+	http.ListenAndServe(s.listenAddr, s.Router)
 
-	
-	err := http.ListenAndServe(s.listenAddr, router)
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 func (s *APIServer) validateRequest(w http.ResponseWriter, r *http.Request, data any) bool {
 	if err := s.validate.Struct(data); err != nil {
