@@ -4,7 +4,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	//"keeper/internal/models"
+	"keeper/internal/models"
 	"keeper/internal/storage"
 	"net/http"
 	"net/http/httptest"
@@ -43,7 +43,7 @@ func TestCreateDealershipAPI(t *testing.T) {
 	
 	server := newTestServer(t, store)
 
-	testServer := httptest.NewServer(server.Router) // Assumendo che il router sia esposto
+	testServer := httptest.NewServer(server.Router) 
 	defer testServer.Close()
 
 	t.Run("it creates a dealership and returns its ID", func(t *testing.T) {
@@ -72,3 +72,39 @@ func TestCreateDealershipAPI(t *testing.T) {
 	})
 }
 
+func TestGetDealershipsAPI(t *testing.T) {
+	
+	store := newTestDB(t)
+	server := newTestServer(t, store)
+	testServer := httptest.NewServer(server.Router)
+	defer testServer.Close()
+
+	// SEEDING
+	_, err := store.Db.Exec("INSERT INTO dealership (postalcode, city, address, phone) VALUES ('73100', 'Lecce Seed', 'Via Seed 1', '12345')")
+	if err != nil {
+		t.Fatalf("Impossibile inserire dati di prova: %v", err)
+	}
+
+	resp, err := http.Get(testServer.URL + "/dealerships")
+	if err != nil {
+		t.Fatalf("Errore durante l'invio della richiesta: %s", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("status code errato: ricevuto %v, atteso %v", resp.StatusCode, http.StatusOK)
+	}
+	
+	var dealerships []*models.Dealership
+	if err := json.NewDecoder(resp.Body).Decode(&dealerships); err != nil {
+		t.Fatalf("impossibile decodificare la risposta JSON: %s", err)
+	}
+
+	if len(dealerships) != 1 {
+		t.Errorf("attesa 1 concessionaria, ricevute %d", len(dealerships))
+	}
+
+	if dealerships[0].City != "Lecce Seed" {
+		t.Errorf("città errata: ricevuta '%s', attesa 'Lecce Seed'", dealerships[0].City)
+	}
+}
