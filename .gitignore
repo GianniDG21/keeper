@@ -1,2 +1,4 @@
 .env
 scriptSQL
+# Python virtual environment
+/notifier/venv/
