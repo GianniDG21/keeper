@@ -1,4 +1,4 @@
-from Flask import Flask, request, jsonify
+from flask import Flask, request, jsonify
 import logging
 
 logging.basicConfig(level=logging.INFO, format='[NotifierService] %(asctime)s - %(message)s')

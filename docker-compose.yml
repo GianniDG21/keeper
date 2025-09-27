@@ -1,5 +1,5 @@
 services:
-  # Database Postgres
+  # 1. Database service
   postgres:
     image: postgres:15-alpine
     container_name: keeper-db
@@ -13,20 +13,20 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: always
 
-  # API Go 
+  # 2. API in Go
   api:
     build: . 
     container_name: keeper-api
     ports:
       - "8080:8080"
     environment:
-      
+     
       DATABASE_URL: "postgres://keeper:keeper@postgres:5432/keeper?sslmode=disable"
     depends_on:
       - postgres 
     restart: always
 
-  #  Notifier Python
+  # 3. Python notification service
   notifier:
     build: ./notifier 
     container_name: keeper-notifier
