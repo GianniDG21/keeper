@@ -15,6 +15,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+const errStatusMismatch = "status code errato: ricevuto %v, atteso %v"
+
 func newTestServer(_ *testing.T, store storage.Store) *APIServer {
 	validate := validator.New()
 	return NewAPIServer(":0", store, validate)
@@ -58,7 +60,7 @@ func TestCreateDealershipAPI(t *testing.T) {
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusCreated {
-			t.Errorf("expected status %d, got %d", http.StatusCreated, resp.StatusCode)
+			t.Errorf(errStatusMismatch, resp.StatusCode, http.StatusCreated)
 		}
 
 		var result map[string]int
@@ -68,7 +70,7 @@ func TestCreateDealershipAPI(t *testing.T) {
 		
 		id, ok := result["id"]
 		if !ok || id == 0 {
-			t.Errorf("response does not contain a valid new ID: %v", result)
+			t.Errorf(errStatusMismatch, resp.StatusCode, http.StatusCreated)
 		}
 	})
 }
@@ -93,7 +95,7 @@ func TestGetDealershipsAPI(t *testing.T) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		t.Errorf("status code errato: ricevuto %v, atteso %v", resp.StatusCode, http.StatusOK)
+		t.Errorf(errStatusMismatch, resp.StatusCode, http.StatusOK)
 	}
 	
 	var dealerships []*models.Dealership
@@ -148,7 +150,7 @@ func TestPatchVehicleAPI(t *testing.T) {
 
 	// 4. VERIFICA
 	if resp.StatusCode != http.StatusOK {
-		t.Errorf("status code errato: ricevuto %v, atteso %v", resp.StatusCode, http.StatusOK)
+		t.Errorf(errStatusMismatch, resp.StatusCode, http.StatusCreated)
 	}
 
 }
@@ -177,7 +179,7 @@ func TestDeleteEmployeeAPI(t *testing.T) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
-		t.Errorf("status code errato: ricevuto %v, atteso %v", resp.StatusCode, http.StatusNoContent)
+		t.Errorf(errStatusMismatch, resp.StatusCode, http.StatusCreated)
 	}
 
 	var count int
