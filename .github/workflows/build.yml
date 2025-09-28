@@ -13,23 +13,23 @@ jobs:
     name: Build and Analyze
     runs-on: ubuntu-latest
     steps:
-      # Usiamo l'hash di commit completo invece di @v4
-      - uses: actions/checkout@a44f66a018a13919c62a87a552b75de08e0aee0f
+      # CORRETTO: Usiamo il tag di versione stabile @v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
     
-      # Usiamo l'hash di commit completo invece di @v5
+      # CORRETTO: Usiamo il tag di versione stabile @v5
       - name: Set up Go
-        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491
+        uses: actions/setup-go@v5
         with:
           go-version: '1.22'
     
       - name: Run tests and generate coverage report
         run: go test ./... -coverprofile=coverage.out
     
-      # Usiamo l'hash di commit completo invece di @master
+      # CORRETTO: Usiamo il tag di versione stabile @master
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@46542565922c06e1669527f394018f2762a106f3
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
