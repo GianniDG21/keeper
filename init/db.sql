@@ -18,10 +18,10 @@ CREATE Table dealership (
     address VARCHAR(100) NOT NULL,
     phone VARCHAR(20)
 );
-create type role_enum as enum ('Manager', 'Mechanic', 'Salesperson', 'Assistant', 'ADMIN');
+create type role_enum as enum ('manager', 'mechanic', 'salesperson', 'assistant', 'admin');
 CREATE Table employee (
     id_employee SERIAL PRIMARY KEY,
-    role role_enum NOT NULL DEFAULT 'Assistant',
+    role role_enum NOT NULL DEFAULT 'assistant',
     tin VARCHAR(16) UNIQUE NOT NULL,
     name VARCHAR(50) NOT NULL,
     surname VARCHAR(50) NOT NULL,
@@ -37,21 +37,21 @@ CREATE Table employment (
     FOREIGN KEY (id_employee) REFERENCES employee(id_employee),
     FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership)
 );
-create type condition_enum as enum ('New', 'Used');
+create type condition_enum as enum ('new', 'used');
 create table car_park (
     vin VARCHAR(17) PRIMARY KEY,
     id_dealership INT NOT NULL,
     brand VARCHAR(30) NOT NULL,
     model VARCHAR(30) NOT NULL,
-    condition condition_enum NOT NULL DEFAULT 'New',
+    condition condition_enum NOT NULL DEFAULT 'new',
     "year" INT NOT NULL CHECK ("year" > 1900 AND "year" <= (EXTRACT(YEAR FROM CURRENT_DATE) + 1)), 
     km int NOT NULL DEFAULT 0
 );
 
-create type status_enum as enum ('Pending', 'Completed', 'Cancelled', 'InProgress');
+create type status_enum as enum ('pending', 'completed', 'cancelled', 'in_progress');
 create table "order" (
     id_order SERIAL PRIMARY KEY,
-    status status_enum NOT NULL DEFAULT 'Pending',
+    status status_enum NOT NULL DEFAULT 'pending',
     id_client INT NOT NULL,
     id_employee INT NOT NULL,
     vin VARCHAR(17) NOT NULL,

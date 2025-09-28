@@ -540,17 +540,17 @@ func (s *APIServer) handlePatchCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 1. Decodifichiamo il JSON in una mappa, non in una struct
+	// Decode the JSON into a map, not into a struct
 	var updates map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
 		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
-    
-    // 2. NON eseguiamo più la validazione della struct, perché abbiamo una mappa
+	
+	// Skip struct validation since we have a map
 
-	// 3. Passiamo la mappa direttamente allo store
+	// Pass the map directly to the store
 	if err := s.store.PatchCarPark(id, updates); err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)

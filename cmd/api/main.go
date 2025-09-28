@@ -20,17 +20,17 @@ func main() {
 	if err != nil {
 		log.Println("Warning: .env file not found, using OS environment variables")
 	}
-
+	// Get the database connection string from environment variables
 	connString := os.Getenv("DATABASE_URL")
 	if connString == "" {
 		log.Fatal("DATABASE_URL environment variable is not set")
 	}
-
+	// Initialize the storage
 	store, err := storage.NewPostgresStore(connString)
 	if err != nil {
 		log.Fatal("failed to connect to the database: ", err)
 	}
-
+	// Initialize the validator
 	validate := validator.New()
 	server := api.NewAPIServer(":8080", store, validate)
 	server.Run()

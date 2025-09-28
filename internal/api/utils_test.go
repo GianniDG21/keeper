@@ -9,7 +9,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func newTestRequestWithID(id string) *http.Request {	// Helper function to create a new HTTP request with chi URL params
+// newTestRequestWithID creates a new HTTP request with chi URL params for testing purposes.
+// It sets up a chi route context with the provided ID parameter and returns a request
+// that can be used to test URL parameter extraction functions.
+func newTestRequestWithID(id string) *http.Request {
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add("id", id)
 
@@ -18,8 +21,11 @@ func newTestRequestWithID(id string) *http.Request {	// Helper function to creat
 	return req
 }
 
+// TestGetIDFromURL tests the getIDFromURL function with various input scenarios.
+// It verifies that the function correctly parses valid IDs, handles invalid inputs,
+// and returns appropriate errors when expected.
 func TestGetIDFromURL(t *testing.T) {
-	//Test cases
+	// Test cases covering valid IDs, invalid formats, and edge cases
 	testCases := []struct {
 		name    string
 		inputID string
@@ -52,10 +58,12 @@ func TestGetIDFromURL(t *testing.T) {
 
 			gotID, err := getIDFromURL(req)
 
+			// Verify error expectation matches actual result
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("getIDFromURL() error = %v, wantErr %v", err, tc.wantErr)
 			}
 			
+			// Only check ID value when no error is expected
 			if !tc.wantErr && gotID != tc.wantID {
 				t.Errorf("getIDFromURL() = %v, want %v", gotID, tc.wantID)
 			}
