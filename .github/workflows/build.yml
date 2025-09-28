@@ -1,19 +1,39 @@
-name: Build
+# Nome del workflow
+name: Build and Analyze
+
+# Trigger: si attiva a ogni push o pull request sulla branch main
 on:
   push:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
 jobs:
-  sonarqube:
-    name: SonarQube
-    runs-on: windows-latest
+  build-and-analyze:
+    name: Build and Analyze
+    # Usiamo una macchina virtuale Linux (ubuntu), che è lo standard per la CI/CD
+    runs-on: ubuntu-latest
     steps:
+      # 1. Scarica il codice dal repository
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+          fetch-depth: 0
+
+      # 2. Imposta l'ambiente Go
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22' # O la tua versione specifica
+
+      # 3. ESEGUE I TEST E CREA IL REPORT DI COVERAGE (IL PASSAGGIO MANCANTE)
+      - name: Run tests and generate coverage report
+        run: go test ./... -coverprofile=coverage.out
+
+      # 4. Esegue l'analisi di SonarCloud
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
