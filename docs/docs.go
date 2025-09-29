@@ -956,7 +956,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Employments"
+                    "Employment"
                 ],
                 "summary": "List Employments",
                 "responses": {
@@ -989,7 +989,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Employments"
+                    "Employment"
                 ],
                 "summary": "Create Employment",
                 "parameters": [
@@ -1044,7 +1044,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Employments"
+                    "Employment"
                 ],
                 "summary": "Update Employment",
                 "parameters": [
@@ -1098,7 +1098,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Employments"
+                    "Employment"
                 ],
                 "summary": "Delete Employment",
                 "parameters": [
@@ -1142,7 +1142,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Health"
+                    "System"
                 ],
                 "summary": "Health Check",
                 "responses": {
@@ -1371,11 +1371,12 @@ const docTemplate = `{
                 "id_employee": {
                     "type": "integer"
                 },
-                "note": {
+                "notes": {
                     "type": "string"
                 },
                 "reason": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
                 }
             }
         },
@@ -1384,12 +1385,16 @@ const docTemplate = `{
             "required": [
                 "brand",
                 "condition",
+                "id_dealership",
+                "km",
                 "model",
+                "plate",
                 "year"
             ],
             "properties": {
                 "brand": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30
                 },
                 "condition": {
                     "enum": [
@@ -1409,21 +1414,23 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "km": {
-                    "type": "integer"
+                    "type": "string",
+                    "maxLength": 7
                 },
                 "model": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30
                 },
                 "plate": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 10
                 },
                 "vin": {
                     "type": "string"
                 },
                 "year": {
                     "type": "integer",
-                    "maximum": 2099,
-                    "minimum": 1886
+                    "minimum": 1901
                 }
             }
         },
@@ -1431,34 +1438,40 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
-                "phone",
                 "tin_vat",
                 "type"
             ],
             "properties": {
                 "companyname": {
-                    "description": "Pointer to allow null values",
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "email": {
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "id_client": {
                     "type": "integer"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "phone": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 20
                 },
                 "profession": {
-                    "description": "Pointer to allow null values",
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "surname": {
-                    "description": "Pointer to allow null values",
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "tin_vat": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 16
                 },
                 "type": {
                     "enum": [
@@ -1480,7 +1493,7 @@ const docTemplate = `{
                 "company"
             ],
             "x-enum-varnames": [
-                "ClientTypeIndividual",
+                "ClientTypePrivate",
                 "ClientTypeCompany"
             ]
         },
@@ -1500,25 +1513,28 @@ const docTemplate = `{
             "required": [
                 "address",
                 "city",
-                "phone"
+                "phone",
+                "postalcode"
             ],
             "properties": {
                 "address": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 100
                 },
                 "city": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 30
                 },
                 "id_dealership": {
                     "type": "integer"
                 },
                 "phone": {
-                    "type": "string"
-                },
-                "postal_code": {
                     "type": "string",
-                    "maxLength": 10,
-                    "minLength": 3
+                    "maxLength": 20
+                },
+                "postalcode": {
+                    "type": "string",
+                    "maxLength": 5
                 }
             }
         },
@@ -1536,10 +1552,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "phone": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 20
                 },
                 "role": {
                     "enum": [
@@ -1556,10 +1574,12 @@ const docTemplate = `{
                     ]
                 },
                 "surname": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "tin": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 16
                 }
             }
         },
@@ -1639,15 +1659,6 @@ const docTemplate = `{
                 "cancelled",
                 "in_progress"
             ],
-            "x-enum-comments": {
-                "OrderStatusPending": "← Cambia nome costante"
-            },
-            "x-enum-descriptions": [
-                "← Cambia nome costante",
-                "",
-                "",
-                ""
-            ],
             "x-enum-varnames": [
                 "OrderStatusPending",
                 "OrderStatusCompleted",
@@ -1663,16 +1674,6 @@ const docTemplate = `{
                 "manager",
                 "admin",
                 "mechanic"
-            ],
-            "x-enum-comments": {
-                "RoleSalesperson": "← Cambia da \"seller\" a \"salesperson\""
-            },
-            "x-enum-descriptions": [
-                "",
-                "← Cambia da \"seller\" a \"salesperson\"",
-                "",
-                "",
-                ""
             ],
             "x-enum-varnames": [
                 "RoleAssistant",

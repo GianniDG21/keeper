@@ -12,9 +12,10 @@ definitions:
         type: integer
       id_employee:
         type: integer
-      note:
+      notes:
         type: string
       reason:
+        maxLength: 100
         type: string
     required:
     - date
@@ -26,6 +27,7 @@ definitions:
   models.CarPark:
     properties:
       brand:
+        maxLength: 30
         type: string
       condition:
         allOf:
@@ -38,41 +40,52 @@ definitions:
       id_dealership:
         type: integer
       km:
-        type: integer
+        maxLength: 7
+        type: string
       model:
+        maxLength: 30
         type: string
       plate:
+        maxLength: 10
         type: string
       vin:
         type: string
       year:
-        maximum: 2099
-        minimum: 1886
+        minimum: 1901
         type: integer
     required:
     - brand
     - condition
+    - id_dealership
+    - km
     - model
+    - plate
     - year
     type: object
   models.Client:
     properties:
       companyname:
-        description: Pointer to allow null values
+        maxLength: 100
+        type: string
+      email:
+        maxLength: 50
         type: string
       id_client:
         type: integer
       name:
+        maxLength: 50
         type: string
       phone:
+        maxLength: 20
         type: string
       profession:
-        description: Pointer to allow null values
+        maxLength: 50
         type: string
       surname:
-        description: Pointer to allow null values
+        maxLength: 50
         type: string
       tin_vat:
+        maxLength: 16
         type: string
       type:
         allOf:
@@ -82,7 +95,6 @@ definitions:
         - company
     required:
     - name
-    - phone
     - tin_vat
     - type
     type: object
@@ -92,7 +104,7 @@ definitions:
     - company
     type: string
     x-enum-varnames:
-    - ClientTypeIndividual
+    - ClientTypePrivate
     - ClientTypeCompany
   models.CondType:
     enum:
@@ -105,29 +117,34 @@ definitions:
   models.Dealership:
     properties:
       address:
+        maxLength: 100
         type: string
       city:
+        maxLength: 30
         type: string
       id_dealership:
         type: integer
       phone:
+        maxLength: 20
         type: string
-      postal_code:
-        maxLength: 10
-        minLength: 3
+      postalcode:
+        maxLength: 5
         type: string
     required:
     - address
     - city
     - phone
+    - postalcode
     type: object
   models.Employee:
     properties:
       id_employee:
         type: integer
       name:
+        maxLength: 50
         type: string
       phone:
+        maxLength: 20
         type: string
       role:
         allOf:
@@ -139,8 +156,10 @@ definitions:
         - admin
         - mechanic
       surname:
+        maxLength: 50
         type: string
       tin:
+        maxLength: 16
         type: string
     required:
     - name
@@ -202,13 +221,6 @@ definitions:
     - cancelled
     - in_progress
     type: string
-    x-enum-comments:
-      OrderStatusPending: ← Cambia nome costante
-    x-enum-descriptions:
-    - ← Cambia nome costante
-    - ""
-    - ""
-    - ""
     x-enum-varnames:
     - OrderStatusPending
     - OrderStatusCompleted
@@ -222,14 +234,6 @@ definitions:
     - admin
     - mechanic
     type: string
-    x-enum-comments:
-      RoleSalesperson: ← Cambia da "seller" a "salesperson"
-    x-enum-descriptions:
-    - ""
-    - ← Cambia da "seller" a "salesperson"
-    - ""
-    - ""
-    - ""
     x-enum-varnames:
     - RoleAssistant
     - RoleSalesperson
@@ -882,7 +886,7 @@ paths:
             type: object
       summary: List Employments
       tags:
-      - Employments
+      - Employment
     post:
       consumes:
       - application/json
@@ -918,7 +922,7 @@ paths:
             type: object
       summary: Create Employment
       tags:
-      - Employments
+      - Employment
   /employments/{id}:
     delete:
       description: Deletes an employment record by its ID.
@@ -947,7 +951,7 @@ paths:
             type: object
       summary: Delete Employment
       tags:
-      - Employments
+      - Employment
     put:
       consumes:
       - application/json
@@ -986,7 +990,7 @@ paths:
             type: object
       summary: Update Employment
       tags:
-      - Employments
+      - Employment
   /healthcheck:
     get:
       description: Checks if the API server is running.
@@ -1001,7 +1005,7 @@ paths:
             type: object
       summary: Health Check
       tags:
-      - Health
+      - System
   /orders:
     get:
       description: Retrieves a list of all sales orders.
