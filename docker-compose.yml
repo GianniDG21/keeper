@@ -20,7 +20,6 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # CORRETTO: Costruiamo l'URL per la rete interna di Docker usando il nome del servizio "postgres"
       DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/keeper?sslmode=disable"
     depends_on:
       - postgres 
