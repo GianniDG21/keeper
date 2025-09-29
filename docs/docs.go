@@ -201,6 +201,196 @@ const docTemplate = `{
                 }
             }
         },
+        "/cars": {
+            "get": {
+                "description": "Retrieves a list of all cars in the car park.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cars"
+                ],
+                "summary": "List all Cars",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CarPark"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error: Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Adds a new car to the inventory.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cars"
+                ],
+                "summary": "Add a new Car",
+                "parameters": [
+                    {
+                        "description": "New Car Data",
+                        "name": "car",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CarPark"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Returns the ID of the newly created car",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error: Invalid request payload",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error: Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cars/{id}": {
+            "delete": {
+                "description": "Deletes a car from the inventory by its ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cars"
+                ],
+                "summary": "Delete a Car",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Car ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Error: Invalid ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error: Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Partially updates a car by its ID. Only provided fields will be modified.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cars"
+                ],
+                "summary": "Patch a Car",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Car ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Fields to update (partial car data)",
+                        "name": "updates",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns update confirmation",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Error: Invalid ID or request payload",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error: Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/clients": {
             "get": {
                 "description": "Retrieves a list of all clients.",
@@ -575,6 +765,7 @@ const docTemplate = `{
         },
         "/employees": {
             "get": {
+                "description": "Retrieves a list of all employees in the system.",
                 "produces": [
                     "application/json"
                 ],
@@ -593,7 +784,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Error: Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -604,6 +795,7 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "description": "Creates a new employee in the system.",
                 "consumes": [
                     "application/json"
                 ],
@@ -616,7 +808,7 @@ const docTemplate = `{
                 "summary": "Create Employee",
                 "parameters": [
                     {
-                        "description": "New Employee",
+                        "description": "New Employee Data",
                         "name": "employee",
                         "in": "body",
                         "required": true,
@@ -627,7 +819,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Returns the ID of the newly created employee",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -636,7 +828,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Error: Invalid request payload",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -645,7 +837,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Error: Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -658,6 +850,7 @@ const docTemplate = `{
         },
         "/employees/{id}": {
             "put": {
+                "description": "Updates an existing employee's data by their ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -694,7 +887,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Error: Invalid ID or request payload",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -703,7 +896,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Error: Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -714,6 +907,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "description": "Deletes an employee by their ID.",
                 "produces": [
                     "application/json"
                 ],
@@ -735,7 +929,7 @@ const docTemplate = `{
                         "description": "No Content"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Error: Invalid ID",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -744,7 +938,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Error: Internal server error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1149,192 +1343,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/vehicles": {
-            "get": {
-                "description": "Retrieves a list of all vehicles in the car park.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Vehicles"
-                ],
-                "summary": "List all Vehicles",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.CarPark"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Error: Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Adds a new vehicle to the inventory.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Vehicles"
-                ],
-                "summary": "Add a new Vehicle",
-                "parameters": [
-                    {
-                        "description": "New Vehicle Data",
-                        "name": "vehicle",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CarPark"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Returns the ID of the newly created vehicle",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Error: Invalid request payload",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Error: Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/vehicles/{id}": {
-            "put": {
-                "description": "Updates an existing vehicle's data by its ID.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Vehicles"
-                ],
-                "summary": "Update a Vehicle",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Vehicle ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated Vehicle Data",
-                        "name": "vehicle",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.CarPark"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.CarPark"
-                        }
-                    },
-                    "400": {
-                        "description": "Error: Invalid ID or request payload",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Error: Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deletes a vehicle from the inventory by its ID.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Vehicles"
-                ],
-                "summary": "Delete a Vehicle",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Vehicle ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Error: Invalid ID",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Error: Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -1377,7 +1385,6 @@ const docTemplate = `{
                 "brand",
                 "condition",
                 "model",
-                "vin",
                 "year"
             ],
             "properties": {
@@ -1509,7 +1516,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "postal_code": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 3
                 }
             }
         },
@@ -1535,7 +1544,7 @@ const docTemplate = `{
                 "role": {
                     "enum": [
                         "assistant",
-                        "seller",
+                        "salesperson",
                         "manager",
                         "admin",
                         "mechanic"
@@ -1630,8 +1639,17 @@ const docTemplate = `{
                 "cancelled",
                 "in_progress"
             ],
+            "x-enum-comments": {
+                "OrderStatusPending": "← Cambia nome costante"
+            },
+            "x-enum-descriptions": [
+                "← Cambia nome costante",
+                "",
+                "",
+                ""
+            ],
             "x-enum-varnames": [
-                "OrderStatusClient",
+                "OrderStatusPending",
                 "OrderStatusCompleted",
                 "OrderStatusCancelled",
                 "OrderStatusInProgress"
@@ -1641,14 +1659,24 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "assistant",
-                "seller",
+                "salesperson",
                 "manager",
                 "admin",
                 "mechanic"
             ],
+            "x-enum-comments": {
+                "RoleSalesperson": "← Cambia da \"seller\" a \"salesperson\""
+            },
+            "x-enum-descriptions": [
+                "",
+                "← Cambia da \"seller\" a \"salesperson\"",
+                "",
+                "",
+                ""
+            ],
             "x-enum-varnames": [
                 "RoleAssistant",
-                "RoleSeller",
+                "RoleSalesperson",
                 "RoleManager",
                 "RoleAdmin",
                 "RoleMechanic"
@@ -1660,7 +1688,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "progetto-keeper.fly.dev",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "KEEPER API",

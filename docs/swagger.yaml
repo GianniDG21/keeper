@@ -53,7 +53,6 @@ definitions:
     - brand
     - condition
     - model
-    - vin
     - year
     type: object
   models.Client:
@@ -114,6 +113,8 @@ definitions:
       phone:
         type: string
       postal_code:
+        maxLength: 10
+        minLength: 3
         type: string
     required:
     - address
@@ -133,7 +134,7 @@ definitions:
         - $ref: '#/definitions/models.Role'
         enum:
         - assistant
-        - seller
+        - salesperson
         - manager
         - admin
         - mechanic
@@ -201,26 +202,41 @@ definitions:
     - cancelled
     - in_progress
     type: string
+    x-enum-comments:
+      OrderStatusPending: ← Cambia nome costante
+    x-enum-descriptions:
+    - ← Cambia nome costante
+    - ""
+    - ""
+    - ""
     x-enum-varnames:
-    - OrderStatusClient
+    - OrderStatusPending
     - OrderStatusCompleted
     - OrderStatusCancelled
     - OrderStatusInProgress
   models.Role:
     enum:
     - assistant
-    - seller
+    - salesperson
     - manager
     - admin
     - mechanic
     type: string
+    x-enum-comments:
+      RoleSalesperson: ← Cambia da "seller" a "salesperson"
+    x-enum-descriptions:
+    - ""
+    - ← Cambia da "seller" a "salesperson"
+    - ""
+    - ""
+    - ""
     x-enum-varnames:
     - RoleAssistant
-    - RoleSeller
+    - RoleSalesperson
     - RoleManager
     - RoleAdmin
     - RoleMechanic
-host: localhost:8080
+host: progetto-keeper.fly.dev
 info:
   contact: {}
   description: API for the KEEPER Dealership Management System.
@@ -350,6 +366,133 @@ paths:
       summary: Update an Appointment
       tags:
       - Appointments
+  /cars:
+    get:
+      description: Retrieves a list of all cars in the car park.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CarPark'
+            type: array
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all Cars
+      tags:
+      - Cars
+    post:
+      consumes:
+      - application/json
+      description: Adds a new car to the inventory.
+      parameters:
+      - description: New Car Data
+        in: body
+        name: car
+        required: true
+        schema:
+          $ref: '#/definitions/models.CarPark'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Returns the ID of the newly created car
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: 'Error: Invalid request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add a new Car
+      tags:
+      - Cars
+  /cars/{id}:
+    delete:
+      description: Deletes a car from the inventory by its ID.
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: 'Error: Invalid ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a Car
+      tags:
+      - Cars
+    patch:
+      consumes:
+      - application/json
+      description: Partially updates a car by its ID. Only provided fields will be
+        modified.
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Fields to update (partial car data)
+        in: body
+        name: updates
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns update confirmation
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'Error: Invalid ID or request payload'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Error: Internal server error'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Patch a Car
+      tags:
+      - Cars
   /clients:
     get:
       description: Retrieves a list of all clients.
@@ -598,6 +741,7 @@ paths:
       - Dealerships
   /employees:
     get:
+      description: Retrieves a list of all employees in the system.
       produces:
       - application/json
       responses:
@@ -608,7 +752,7 @@ paths:
               $ref: '#/definitions/models.Employee'
             type: array
         "500":
-          description: Internal Server Error
+          description: 'Error: Internal server error'
           schema:
             additionalProperties:
               type: string
@@ -619,8 +763,9 @@ paths:
     post:
       consumes:
       - application/json
+      description: Creates a new employee in the system.
       parameters:
-      - description: New Employee
+      - description: New Employee Data
         in: body
         name: employee
         required: true
@@ -630,19 +775,19 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Returns the ID of the newly created employee
           schema:
             additionalProperties:
               type: integer
             type: object
         "400":
-          description: Bad Request
+          description: 'Error: Invalid request payload'
           schema:
             additionalProperties:
               type: string
             type: object
         "500":
-          description: Internal Server Error
+          description: 'Error: Internal server error'
           schema:
             additionalProperties:
               type: string
@@ -652,6 +797,7 @@ paths:
       - Employees
   /employees/{id}:
     delete:
+      description: Deletes an employee by their ID.
       parameters:
       - description: Employee ID
         in: path
@@ -664,13 +810,13 @@ paths:
         "204":
           description: No Content
         "400":
-          description: Bad Request
+          description: 'Error: Invalid ID'
           schema:
             additionalProperties:
               type: string
             type: object
         "500":
-          description: Internal Server Error
+          description: 'Error: Internal server error'
           schema:
             additionalProperties:
               type: string
@@ -681,6 +827,7 @@ paths:
     put:
       consumes:
       - application/json
+      description: Updates an existing employee's data by their ID.
       parameters:
       - description: Employee ID
         in: path
@@ -701,13 +848,13 @@ paths:
           schema:
             $ref: '#/definitions/models.Employee'
         "400":
-          description: Bad Request
+          description: 'Error: Invalid ID or request payload'
           schema:
             additionalProperties:
               type: string
             type: object
         "500":
-          description: Internal Server Error
+          description: 'Error: Internal server error'
           schema:
             additionalProperties:
               type: string
@@ -978,127 +1125,4 @@ paths:
       summary: Update an Order
       tags:
       - Orders
-  /vehicles:
-    get:
-      description: Retrieves a list of all vehicles in the car park.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.CarPark'
-            type: array
-        "500":
-          description: 'Error: Internal server error'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: List all Vehicles
-      tags:
-      - Vehicles
-    post:
-      consumes:
-      - application/json
-      description: Adds a new vehicle to the inventory.
-      parameters:
-      - description: New Vehicle Data
-        in: body
-        name: vehicle
-        required: true
-        schema:
-          $ref: '#/definitions/models.CarPark'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Returns the ID of the newly created vehicle
-          schema:
-            additionalProperties:
-              type: integer
-            type: object
-        "400":
-          description: 'Error: Invalid request payload'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: 'Error: Internal server error'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Add a new Vehicle
-      tags:
-      - Vehicles
-  /vehicles/{id}:
-    delete:
-      description: Deletes a vehicle from the inventory by its ID.
-      parameters:
-      - description: Vehicle ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: 'Error: Invalid ID'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: 'Error: Internal server error'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Delete a Vehicle
-      tags:
-      - Vehicles
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing vehicle's data by its ID.
-      parameters:
-      - description: Vehicle ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Updated Vehicle Data
-        in: body
-        name: vehicle
-        required: true
-        schema:
-          $ref: '#/definitions/models.CarPark'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.CarPark'
-        "400":
-          description: 'Error: Invalid ID or request payload'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: 'Error: Internal server error'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Update a Vehicle
-      tags:
-      - Vehicles
 swagger: "2.0"

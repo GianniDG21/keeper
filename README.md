@@ -53,6 +53,64 @@ This project lays the foundation for a complete Dealership Management System (DM
 
 ---
 
+### API Reference
+
+An interactive API documentation is available via Swagger UI. Once the server is running, you can access it and test all the endpoints at:
+
+`http://localhost:8080/swagger/index.html`
+
+or : https://progetto-keeper.fly.dev/swagger/index.html
+
+---
+
+### Getting Started
+
+To get a local copy up and running, follow these simple steps.
+
+#### Prerequisites
+
+Make sure you have the following software installed on your machine:
+* **Go**: version 1.22 or later.
+* **Docker & Docker Compose**: To run the database and other services.
+* **An API Client**: Such as [Postman](https://www.postman.com/) for testing the endpoints.
+
+#### Installation
+
+1.  **Clone the repository**
+    ```sh
+    git clone [https://github.com/GianniDG21/keeper.git](https://github.com/GianniDG21/keeper.git)
+    ```
+
+2.  **Navigate to the project directory**
+    ```sh
+    cd keeper
+    ```
+
+3.  **Create the environment file**
+    Create a `.env` file in the root of the project. This file will hold your local environment variables. Copy and paste the following content into it:
+    ```env
+    # PostgreSQL Connection URL for the Go application
+    DATABASE_URL="postgres://keeper:keeper@localhost:5432/keeper?sslmode=disable"
+
+    # Credentials for the PostgreSQL service in Docker Compose
+    POSTGRES_USER=keeper
+    POSTGRES_PASSWORD=keeper
+    ```
+
+4.  **Launch the Infrastructure & API**
+    * In your first terminal, start the database container using Docker Compose:
+        ```sh
+        docker-compose up -d
+        ```
+    * In a second terminal, run the main application:
+        ```sh
+        go run ./cmd/api
+        ```
+
+5.  **You're ready!** The API server is now running and listening on `http://localhost:8080`.
+
+---
+
 ### DESIGN DECISIONS
 
 #### Hybrid Data Access Layer
@@ -77,3 +135,13 @@ The project was configured for static analysis with SonarQube. The tool correctl
 ### ACKNOWLEDGMENTS
 
 Thank you for taking the time to review this project. It marks my first major portfolio piece and, I hope, the first of many more to come. It represents months of dedicated effort to acquire the skills necessary to start my career in software development.
+
+### License
+
+Distributed under the CC BY-NC-SA 4.0 Legal Code. See `LICENSE.txt` for more information.
+
+### Contact
+
+Gianni De Grossi - giannidegrossi@gmail.com
+
+Project Link: [https://github.com/GianniDG21/keeper](https://github.com/GianniDG21/keeper)
