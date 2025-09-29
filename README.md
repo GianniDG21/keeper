@@ -84,7 +84,7 @@ Make sure you have the following software installed on your machine:
 2.  **Create the Environment File**
     Create a `.env` file in the root of the project and paste the following content. This file configures the local database connection.
     ```env
-    # PostgreSQL Connection URL for the Go application
+    #   greSQL Connection URL for the Go application
     DATABASE_URL="postgres://keeper:keeper@localhost:5432/keeper?sslmode=disable"
 
     # Credentials for the PostgreSQL service in Docker Compose

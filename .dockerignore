@@ -1,243 +1,33 @@
-# flyctl launch added from .gitignore
-**\.env
-**\scriptSQL
-# Python virtual environment
-notifier\venv
-**\info
+# Git and VS Code
+.git
+.gitignore
+.vscode/
 
-# flyctl launch added from .venv\.gitignore
-.venv\**\*
+# Docker specific files
+Dockerfile
+docker-compose.yml
+.dockerignore
+postgres-data/
 
-# flyctl launch added from vendor\github.com\KyleBanks\depth\.gitignore
-# Binaries for programs and plugins
-vendor\github.com\KyleBanks\depth\**\*.exe
-vendor\github.com\KyleBanks\depth\**\*.dll
-vendor\github.com\KyleBanks\depth\**\*.so
-vendor\github.com\KyleBanks\depth\**\*.dylib
+# Go build artifacts & cache
+*.exe
+*.out
+keeper-api
 
-# Test binary, build with `go test -c`
-vendor\github.com\KyleBanks\depth\**\*.test
+# Python virtual environment & cache
+notifier/venv/
+notifier/__pycache__/
+notifier/*.pyc
 
-# Output of the go coverage tool, specifically when used with LiteIDE
-vendor\github.com\KyleBanks\depth\**\*.out
+# Go dependencies (not needed if using multi-stage build)
+vendor/
 
-# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
-vendor\github.com\KyleBanks\depth\**\.glide
+# Environment files
+.env*
 
-vendor\github.com\KyleBanks\depth\**\bin
+# Documentation and reports
+docs/
+coverage.out
 
-# flyctl launch added from vendor\github.com\go-chi\chi\v5\.gitignore
-vendor\github.com\go-chi\chi\v5\**\.idea
-vendor\github.com\go-chi\chi\v5\**\*.sw?
-vendor\github.com\go-chi\chi\v5\**\.vscode
-
-# flyctl launch added from vendor\github.com\go-openapi\jsonpointer\.gitignore
-vendor\github.com\go-openapi\jsonpointer\**\secrets.yml
-
-# flyctl launch added from vendor\github.com\go-openapi\jsonreference\.gitignore
-vendor\github.com\go-openapi\jsonreference\**\secrets.yml
-
-# flyctl launch added from vendor\github.com\go-openapi\spec\.gitignore
-vendor\github.com\go-openapi\spec\**\secrets.yml
-vendor\github.com\go-openapi\spec\**\coverage.out
-
-# flyctl launch added from vendor\github.com\go-openapi\swag\.gitignore
-vendor\github.com\go-openapi\swag\**\secrets.yml
-vendor\github.com\go-openapi\swag\**\vendor
-vendor\github.com\go-openapi\swag\**\Godeps
-vendor\github.com\go-openapi\swag\**\.idea
-
-# flyctl launch added from vendor\github.com\go-playground\locales\.gitignore
-# Compiled Object files, Static and Dynamic libs (Shared Objects)
-vendor\github.com\go-playground\locales\**\*.o
-vendor\github.com\go-playground\locales\**\*.a
-vendor\github.com\go-playground\locales\**\*.so
-
-# Folders
-vendor\github.com\go-playground\locales\**\_obj
-vendor\github.com\go-playground\locales\**\_test
-
-# Architecture specific extensions/prefixes
-vendor\github.com\go-playground\locales\**\*.[568vq]
-vendor\github.com\go-playground\locales\**\[568vq].out
-
-vendor\github.com\go-playground\locales\**\*.cgo1.go
-vendor\github.com\go-playground\locales\**\*.cgo2.c
-vendor\github.com\go-playground\locales\**\_cgo_defun.c
-vendor\github.com\go-playground\locales\**\_cgo_gotypes.go
-vendor\github.com\go-playground\locales\**\_cgo_export.*
-
-vendor\github.com\go-playground\locales\**\_testmain.go
-
-vendor\github.com\go-playground\locales\**\*.exe
-vendor\github.com\go-playground\locales\**\*.test
-vendor\github.com\go-playground\locales\**\*.prof
-
-# flyctl launch added from vendor\github.com\go-playground\universal-translator\.gitignore
-# Compiled Object files, Static and Dynamic libs (Shared Objects)
-vendor\github.com\go-playground\universal-translator\**\*.o
-vendor\github.com\go-playground\universal-translator\**\*.a
-vendor\github.com\go-playground\universal-translator\**\*.so
-
-# Folders
-vendor\github.com\go-playground\universal-translator\**\_obj
-vendor\github.com\go-playground\universal-translator\**\_test
-
-# Architecture specific extensions/prefixes
-vendor\github.com\go-playground\universal-translator\**\*.[568vq]
-vendor\github.com\go-playground\universal-translator\**\[568vq].out
-
-vendor\github.com\go-playground\universal-translator\**\*.cgo1.go
-vendor\github.com\go-playground\universal-translator\**\*.cgo2.c
-vendor\github.com\go-playground\universal-translator\**\_cgo_defun.c
-vendor\github.com\go-playground\universal-translator\**\_cgo_gotypes.go
-vendor\github.com\go-playground\universal-translator\**\_cgo_export.*
-
-vendor\github.com\go-playground\universal-translator\**\_testmain.go
-
-vendor\github.com\go-playground\universal-translator\**\*.exe
-vendor\github.com\go-playground\universal-translator\**\*.test
-vendor\github.com\go-playground\universal-translator\**\*.prof
-vendor\github.com\go-playground\universal-translator\**\*.coverprofile
-
-# flyctl launch added from vendor\github.com\go-playground\validator\v10\.gitignore
-# Compiled Object files, Static and Dynamic libs (Shared Objects)
-vendor\github.com\go-playground\validator\v10\**\*.o
-vendor\github.com\go-playground\validator\v10\**\*.a
-vendor\github.com\go-playground\validator\v10\**\*.so
-
-# Folders
-vendor\github.com\go-playground\validator\v10\**\_obj
-vendor\github.com\go-playground\validator\v10\**\_test
-vendor\github.com\go-playground\validator\v10\**\bin
-
-# Architecture specific extensions/prefixes
-vendor\github.com\go-playground\validator\v10\**\*.[568vq]
-vendor\github.com\go-playground\validator\v10\**\[568vq].out
-
-vendor\github.com\go-playground\validator\v10\**\*.cgo1.go
-vendor\github.com\go-playground\validator\v10\**\*.cgo2.c
-vendor\github.com\go-playground\validator\v10\**\_cgo_defun.c
-vendor\github.com\go-playground\validator\v10\**\_cgo_gotypes.go
-vendor\github.com\go-playground\validator\v10\**\_cgo_export.*
-
-vendor\github.com\go-playground\validator\v10\**\_testmain.go
-
-vendor\github.com\go-playground\validator\v10\**\*.exe
-vendor\github.com\go-playground\validator\v10\**\*.test
-vendor\github.com\go-playground\validator\v10\**\*.prof
-vendor\github.com\go-playground\validator\v10\**\*.test
-vendor\github.com\go-playground\validator\v10\**\*.out
-vendor\github.com\go-playground\validator\v10\**\*.txt
-vendor\github.com\go-playground\validator\v10\**\*.DS_Store
-vendor\github.com\go-playground\validator\v10\**\cover.html
-vendor\github.com\go-playground\validator\v10\**\README.html
-vendor\github.com\go-playground\validator\v10\**\.idea
-
-# flyctl launch added from vendor\github.com\jackc\pgx\v5\.gitignore
-# Compiled Object files, Static and Dynamic libs (Shared Objects)
-vendor\github.com\jackc\pgx\v5\**\*.o
-vendor\github.com\jackc\pgx\v5\**\*.a
-vendor\github.com\jackc\pgx\v5\**\*.so
-
-# Folders
-vendor\github.com\jackc\pgx\v5\**\_obj
-vendor\github.com\jackc\pgx\v5\**\_test
-
-# Architecture specific extensions/prefixes
-vendor\github.com\jackc\pgx\v5\**\*.[568vq]
-vendor\github.com\jackc\pgx\v5\**\[568vq].out
-
-vendor\github.com\jackc\pgx\v5\**\*.cgo1.go
-vendor\github.com\jackc\pgx\v5\**\*.cgo2.c
-vendor\github.com\jackc\pgx\v5\**\_cgo_defun.c
-vendor\github.com\jackc\pgx\v5\**\_cgo_gotypes.go
-vendor\github.com\jackc\pgx\v5\**\_cgo_export.*
-
-vendor\github.com\jackc\pgx\v5\**\_testmain.go
-
-vendor\github.com\jackc\pgx\v5\**\*.exe
-
-vendor\github.com\jackc\pgx\v5\**\.envrc
-vendor\github.com\jackc\pgx\v5\.testdb
-
-vendor\github.com\jackc\pgx\v5\**\.DS_Store
-
-# flyctl launch added from vendor\github.com\joho\godotenv\.gitignore
-vendor\github.com\joho\godotenv\**\.DS_Store
-
-# flyctl launch added from vendor\github.com\leodido\go-urn\.gitignore
-vendor\github.com\leodido\go-urn\**\*.exe
-vendor\github.com\leodido\go-urn\**\*.dll
-vendor\github.com\leodido\go-urn\**\*.so
-vendor\github.com\leodido\go-urn\**\*.dylib
-
-vendor\github.com\leodido\go-urn\**\*.test
-
-vendor\github.com\leodido\go-urn\**\*.out
-vendor\github.com\leodido\go-urn\**\*.txt
-
-vendor\github.com\leodido\go-urn\**\vendor
-vendor\github.com\leodido\go-urn\removecomments
-vendor\github.com\leodido\go-urn\snake2camel
-
-# flyctl launch added from vendor\github.com\swaggo\http-swagger\.gitignore
-# Binaries for programs and plugins
-vendor\github.com\swaggo\http-swagger\**\*.exe
-vendor\github.com\swaggo\http-swagger\**\*.dll
-vendor\github.com\swaggo\http-swagger\**\*.so
-vendor\github.com\swaggo\http-swagger\**\*.dylib
-
-# Jetbrains
-vendor\github.com\swaggo\http-swagger\**\.idea
-
-# Test binary, build with `go test -c`
-vendor\github.com\swaggo\http-swagger\**\*.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-vendor\github.com\swaggo\http-swagger\**\*.out
-
-# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
-vendor\github.com\swaggo\http-swagger\**\.glide
-
-# goreleaser
-vendor\github.com\swaggo\http-swagger\**\dist
-
-# flyctl launch added from vendor\github.com\swaggo\swag\.gitignore
-vendor\github.com\swaggo\swag\**\dist
-vendor\github.com\swaggo\swag\**\testdata\simple*\docs
-vendor\github.com\swaggo\swag\**\testdata\quotes\docs
-vendor\github.com\swaggo\swag\**\testdata\quotes\quotes.so
-vendor\github.com\swaggo\swag\**\testdata\delims\docs
-vendor\github.com\swaggo\swag\**\testdata\delims\delims.so
-vendor\github.com\swaggo\swag\**\example\basic\docs\*
-vendor\github.com\swaggo\swag\**\example\celler\docs\*
-vendor\github.com\swaggo\swag\**\cover.out
-
-
-# Test binary, build with `go test -c`
-vendor\github.com\swaggo\swag\**\*.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-vendor\github.com\swaggo\swag\**\*.out
-vendor\github.com\swaggo\swag\**\.idea
-vendor\github.com\swaggo\swag\**\.vscode
-
-# Etc
-vendor\github.com\swaggo\swag\**\.DS_Store
-
-vendor\github.com\swaggo\swag\swag
-vendor\github.com\swaggo\swag\swag.exe
-
-# flyctl launch added from vendor\gorm.io\driver\postgres\.gitignore
-vendor\gorm.io\driver\postgres\**\.idea
-
-# flyctl launch added from vendor\gorm.io\gorm\.gitignore
-vendor\gorm.io\gorm\**\TODO*
-vendor\gorm.io\gorm\**\documents
-vendor\gorm.io\gorm\**\coverage.txt
-vendor\gorm.io\gorm\**\_book
-vendor\gorm.io\gorm\**\.idea
-vendor\gorm.io\gorm\**\vendor
-vendor\gorm.io\gorm\**\.vscode
-fly.toml
+# OS specific files
+.DS_Store
