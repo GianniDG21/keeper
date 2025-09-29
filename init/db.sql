@@ -5,27 +5,30 @@ CREATE Table "client" (
     "type" client_type_enum NOT NULL,
     phone VARCHAR(20),
     email VARCHAR(50) UNIQUE,
-    tin_vat VARCHAR(16) UNIQUE,
-    name VARCHAR(50),
+    tin_vat VARCHAR(16) UNIQUE NOT NULL,
+    name VARCHAR(50) NOT NULL,
     surname VARCHAR(50),
     companyname VARCHAR(100) DEFAULT NULL,
     profession VARCHAR(50) DEFAULT NULL
 );
+
 CREATE Table dealership (
     id_dealership SERIAL PRIMARY KEY,
     postalcode VARCHAR(5) NOT NULL,
     city VARCHAR(30) NOT NULL,
     address VARCHAR(100) NOT NULL,
-    phone VARCHAR(20)
+    phone VARCHAR(20) NOT NULL
 );
+
 create type role_enum as enum ('manager', 'mechanic', 'salesperson', 'assistant', 'admin');
+
 CREATE Table employee (
     id_employee SERIAL PRIMARY KEY,
     role role_enum NOT NULL DEFAULT 'assistant',
     tin VARCHAR(16) UNIQUE NOT NULL,
     name VARCHAR(50) NOT NULL,
     surname VARCHAR(50) NOT NULL,
-    phone VARCHAR(20)
+    phone VARCHAR(20) NOT NULL
 );
 
 CREATE Table employment (
@@ -34,21 +37,27 @@ CREATE Table employment (
     id_dealership INT NOT NULL,
     startdate DATE NOT NULL,
     enddate DATE,
-    FOREIGN KEY (id_employee) REFERENCES employee(id_employee),
-    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership)
+    FOREIGN KEY (id_employee) REFERENCES employee(id_employee) ON DELETE RESTRICT,
+    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership) ON DELETE RESTRICT
 );
+
 create type condition_enum as enum ('new', 'used');
+
 create table car_park (
-    vin VARCHAR(17) PRIMARY KEY,
+    id_car SERIAL PRIMARY KEY,
+    vin VARCHAR(17) UNIQUE,
     id_dealership INT NOT NULL,
     brand VARCHAR(30) NOT NULL,
     model VARCHAR(30) NOT NULL,
     condition condition_enum NOT NULL DEFAULT 'new',
-    "year" INT NOT NULL CHECK ("year" > 1900 AND "year" <= (EXTRACT(YEAR FROM CURRENT_DATE) + 1)), 
-    km int NOT NULL DEFAULT 0
+    "year" INT NOT NULL CHECK ("year" > 1900 AND "year" <= (EXTRACT(YEAR FROM CURRENT_DATE) + 1)),
+    km VARCHAR(7) NOT NULL DEFAULT '0',
+    plate VARCHAR(10) UNIQUE NOT NULL,
+    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership) ON DELETE RESTRICT
 );
 
 create type status_enum as enum ('pending', 'completed', 'cancelled', 'in_progress');
+
 create table "order" (
     id_order SERIAL PRIMARY KEY,
     status status_enum NOT NULL DEFAULT 'pending',
@@ -56,11 +65,11 @@ create table "order" (
     id_employee INT NOT NULL,
     vin VARCHAR(17) NOT NULL,
     id_dealership INT NOT NULL,
-    last_update DATE NOT NULL,
-    FOREIGN KEY (id_client) REFERENCES client(id_client),
-    FOREIGN KEY (id_employee) REFERENCES employee(id_employee),
-    FOREIGN KEY (vin) REFERENCES car_park(vin),
-    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership)
+    last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_client) REFERENCES client(id_client) ON DELETE RESTRICT,
+    FOREIGN KEY (id_employee) REFERENCES employee(id_employee) ON DELETE RESTRICT,
+    FOREIGN KEY (vin) REFERENCES car_park(vin) ON DELETE RESTRICT,
+    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership) ON DELETE RESTRICT
 );
 
 create table appointment (
@@ -71,8 +80,7 @@ create table appointment (
     "date" TIMESTAMP NOT NULL,
     reason VARCHAR(100) NOT NULL,
     notes TEXT,
-    FOREIGN KEY (id_client) REFERENCES client(id_client),
-    FOREIGN KEY (id_employee) REFERENCES employee(id_employee),
-    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership)
+    FOREIGN KEY (id_client) REFERENCES client(id_client) ON DELETE RESTRICT,
+    FOREIGN KEY (id_employee) REFERENCES employee(id_employee) ON DELETE RESTRICT,
+    FOREIGN KEY (id_dealership) REFERENCES dealership(id_dealership) ON DELETE RESTRICT
 );
-

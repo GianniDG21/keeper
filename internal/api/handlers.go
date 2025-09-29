@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"keeper/internal/models"
 	"net/http"
-)
+	"strings"
 
-// utils.writeJSON and utils.writeError are utility functions for writing JSON responses and error messages to the HTTP response writer.
+	"gorm.io/gorm"
+)
 
 // @Summary      Health Check
 // @Description  Checks if the API server is running.
-// @Tags         Health
+// @Tags         System
 // @Produce      json
 // @Success      200  {object}  map[string]string
 // @Router       /healthcheck [get]
@@ -125,6 +126,16 @@ func (s *APIServer) handleDeleteDealership(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := s.store.DeleteDealership(id); err != nil {
+		if strings.Contains(err.Error(), "cannot delete: referenced by") {
+			writeError(w, http.StatusConflict, err)
+			logError(r, err)
+			return
+		}
+		if err == gorm.ErrRecordNotFound {
+			writeError(w, http.StatusNotFound, err)
+			logError(r, err)
+			return
+		}
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return
@@ -239,6 +250,16 @@ func (s *APIServer) handleDeleteEmployee(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := s.store.DeleteEmployee(id); err != nil {
+		if strings.Contains(err.Error(), "cannot delete: referenced by") {
+			writeError(w, http.StatusConflict, err)
+			logError(r, err)
+			return
+		}
+		if err == gorm.ErrRecordNotFound {
+			writeError(w, http.StatusNotFound, err)
+			logError(r, err)
+			return
+		}
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return
@@ -250,7 +271,7 @@ func (s *APIServer) handleDeleteEmployee(w http.ResponseWriter, r *http.Request)
 
 // @Summary      Create Employment
 // @Description  Assigns an employee to a dealership, creating a new employment record.
-// @Tags         Employments
+// @Tags         Employment
 // @Accept       json
 // @Produce      json
 // @Param        employment  body      models.Employment    true  "New Employment Data"
@@ -281,7 +302,7 @@ func (s *APIServer) handleCreateEmployment(w http.ResponseWriter, r *http.Reques
 
 // @Summary      List Employments
 // @Description  Retrieves a list of all employment records.
-// @Tags         Employments
+// @Tags         Employment
 // @Produce      json
 // @Success      200  {array}   models.Employment
 // @Failure      500  {object}  map[string]string "Error: Internal server error"
@@ -299,7 +320,7 @@ func (s *APIServer) handleGetEmployments(w http.ResponseWriter, r *http.Request)
 
 // @Summary      Update Employment
 // @Description  Updates an existing employment record by its ID (e.g., to set an end date).
-// @Tags         Employments
+// @Tags         Employment
 // @Accept       json
 // @Produce      json
 // @Param        id          path      int                  true  "Employment ID"
@@ -337,7 +358,7 @@ func (s *APIServer) handleUpdateEmployment(w http.ResponseWriter, r *http.Reques
 
 // @Summary      Delete Employment
 // @Description  Deletes an employment record by its ID.
-// @Tags         Employments
+// @Tags         Employment
 // @Produce      json
 // @Param        id  path      int  true  "Employment ID"
 // @Success      204 "No Content"
@@ -353,6 +374,11 @@ func (s *APIServer) handleDeleteEmployment(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := s.store.DeleteEmployment(id); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			writeError(w, http.StatusNotFound, err)
+			logError(r, err)
+			return
+		}
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return
@@ -467,6 +493,16 @@ func (s *APIServer) handleDeleteClient(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.store.DeleteClient(id); err != nil {
+		if strings.Contains(err.Error(), "cannot delete: referenced by") {
+			writeError(w, http.StatusConflict, err)
+			logError(r, err)
+			return
+		}
+		if err == gorm.ErrRecordNotFound {
+			writeError(w, http.StatusNotFound, err)
+			logError(r, err)
+			return
+		}
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return
@@ -543,17 +579,13 @@ func (s *APIServer) handlePatchCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Decode the JSON into a map, not into a struct
 	var updates map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
 		writeError(w, http.StatusBadRequest, err)
 		logError(r, err)
 		return
 	}
-	
-	// Skip struct validation since we have a map
 
-	// Pass the map directly to the store
 	if err := s.store.PatchCar(id, updates); err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
@@ -581,6 +613,17 @@ func (s *APIServer) handleDeleteCar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.store.DeleteCar(id); err != nil {
+		if strings.Contains(err.Error(), "referenced by existing orders") || 
+		   strings.Contains(err.Error(), "referenced by") {
+			writeError(w, http.StatusConflict, err)
+			logError(r, err)
+			return
+		}
+		if err == gorm.ErrRecordNotFound {
+			writeError(w, http.StatusNotFound, err)
+			logError(r, err)
+			return
+		}
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return
@@ -694,6 +737,11 @@ func (s *APIServer) handleDeleteOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.store.DeleteOrder(id); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			writeError(w, http.StatusNotFound, err)
+			logError(r, err)
+			return
+		}
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return
@@ -807,6 +855,11 @@ func (s *APIServer) handleDeleteAppointment(w http.ResponseWriter, r *http.Reque
 	}
 
 	if err := s.store.DeleteAppointment(id); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			writeError(w, http.StatusNotFound, err)
+			logError(r, err)
+			return
+		}
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return

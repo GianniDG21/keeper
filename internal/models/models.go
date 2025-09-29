@@ -6,30 +6,29 @@ import (
 )
 
 type Dealership struct {
-	ID_Dealership int    `json:"id_dealership"`
-	PostalCode    string `json:"postal_code" validate:"min=3,max=10,alphanum"`
-	City          string `json:"city" validate:"required"`
-	Address       string `json:"address" validate:"required"`
-	Phone         string `json:"phone" validate:"required"`
+	ID_Dealership int    `json:"id_dealership" gorm:"primaryKey;autoIncrement"`
+	PostalCode    string `json:"postalcode" gorm:"column:postalcode;not null" validate:"required,max=5"`
+	City          string `json:"city" gorm:"column:city;not null" validate:"required,max=30"`
+	Address       string `json:"address" gorm:"column:address;not null" validate:"required,max=100"`
+	Phone         string `json:"phone" gorm:"column:phone;not null" validate:"required,max=20"`
 }
 
-// @swagger:enum Role
-type Role string //Role Type as Enum for Employee struct
+type Role string
 const (
-	RoleAssistant    Role = "assistant"
-	RoleSalesperson  Role = "salesperson"  // ← Cambia da "seller" a "salesperson"
-	RoleManager      Role = "manager"
-	RoleAdmin        Role = "admin"
-	RoleMechanic     Role = "mechanic"
+	RoleAssistant   Role = "assistant"
+	RoleSalesperson Role = "salesperson"
+	RoleManager     Role = "manager"
+	RoleAdmin       Role = "admin"
+	RoleMechanic    Role = "mechanic"
 )
 
 type Employee struct {
 	ID_Employee int    `json:"id_employee" gorm:"primaryKey;autoIncrement"`
-	Role        Role   `json:"role" gorm:"column:role" validate:"required,oneof=assistant salesperson manager admin mechanic"`
-	TIN         string `json:"tin" gorm:"column:tin;unique" validate:"required"`
-	Name        string `json:"name" gorm:"column:name" validate:"required"`
-	Surname     string `json:"surname" gorm:"column:surname" validate:"required"`
-	Phone       string `json:"phone" gorm:"column:phone" validate:"required"`
+	Role        Role   `json:"role" gorm:"column:role;not null;default:assistant" validate:"required,oneof=assistant salesperson manager admin mechanic"`
+	TIN         string `json:"tin" gorm:"column:tin;unique;not null" validate:"required,max=16"`
+	Name        string `json:"name" gorm:"column:name;not null" validate:"required,max=50"`
+	Surname     string `json:"surname" gorm:"column:surname;not null" validate:"required,max=50"`
+	Phone       string `json:"phone" gorm:"column:phone;not null" validate:"required,max=20"`
 }
 
 type Employment struct {
@@ -40,7 +39,7 @@ type Employment struct {
 	EndDate       *time.Time `json:"enddate,omitempty" gorm:"column:enddate"`
 }
 
-func (e *Employment) UnmarshalJSON(data []byte) error {	// Custom UnmarshalJSON to handle date parsing
+func (e *Employment) UnmarshalJSON(data []byte) error {
 	type Alias Employment
 	aux := &struct {
 		StartDate string  `json:"startdate"`
@@ -58,7 +57,7 @@ func (e *Employment) UnmarshalJSON(data []byte) error {	// Custom UnmarshalJSON 
 	if err != nil {
 		return err
 	}
-	e.StartDate = startDate 
+	e.StartDate = startDate
 
 	if aux.EndDate != nil {
 		endDate, err := time.Parse("2006-01-02", *aux.EndDate)
@@ -69,48 +68,47 @@ func (e *Employment) UnmarshalJSON(data []byte) error {	// Custom UnmarshalJSON 
 	}
 
 	return nil
-} 
-// @swagger:enum ClientType
-type ClientType string //ClientType as Enum for Client struct
+}
+
+type ClientType string
 const (
-	ClientTypeIndividual ClientType = "private"
-	ClientTypeCompany    ClientType = "company"
+	ClientTypePrivate ClientType = "private"
+	ClientTypeCompany ClientType = "company"
 )
 
 type Client struct {
-	ID_Client  int        `json:"id_client" gorm:"primaryKey;autoIncrement"`
-	Type       ClientType `json:"type" gorm:"column:type" validate:"required,oneof=private company"`
-	Phone      string     `json:"phone" gorm:"column:phone" validate:"required"`
-	TIN_VAT    string     `json:"tin_vat" gorm:"column:tin_vat;unique" validate:"required"`
-	Name       string     `json:"name" gorm:"column:name" validate:"required"`
-	Surname    *string    `json:"surname,omitempty" gorm:"column:surname"`       //Pointer to allow null values
-	Company    *string    `json:"companyname,omitempty" gorm:"column:companyname"`       //Pointer to allow null values
-	Profession *string    `json:"profession,omitempty" gorm:"column:profession"` //Pointer to allow null values
+	ID_Client   int         `json:"id_client" gorm:"primaryKey;autoIncrement"`
+	Type        ClientType  `json:"type" gorm:"column:type;not null" validate:"required,oneof=private company"`
+	Phone       *string     `json:"phone,omitempty" gorm:"column:phone" validate:"omitempty,max=20"`
+	Email       *string     `json:"email,omitempty" gorm:"column:email;unique" validate:"omitempty,email,max=50"`
+	TIN_VAT     string      `json:"tin_vat" gorm:"column:tin_vat;unique;not null" validate:"required,max=16"`
+	Name        string      `json:"name" gorm:"column:name;not null" validate:"required,max=50"`
+	Surname     *string     `json:"surname,omitempty" gorm:"column:surname" validate:"omitempty,max=50"`
+	CompanyName *string     `json:"companyname,omitempty" gorm:"column:companyname" validate:"omitempty,max=100"`
+	Profession  *string     `json:"profession,omitempty" gorm:"column:profession" validate:"omitempty,max=50"`
 }
 
-// @swagger:enum CondType
-type CondType string //CondType as Enum for CarPark struct
+type CondType string
 const (
 	CondTypeNew  CondType = "new"
 	CondTypeUsed CondType = "used"
 )
 
 type CarPark struct {
-	ID_Car	      int      `json:"id_car" gorm:"primaryKey;autoIncrement"`
-	VIN           *string   `json:"vin,omitempty" gorm:"column:vin" validate:"omitempty,alphanum,len=17"`
-	ID_Dealership int      `json:"id_dealership" gorm:"column:id_dealership;not null"`
-	Brand         string   `json:"brand" gorm:"column:brand" validate:"required"`
-	Model         string   `json:"model" gorm:"column:model" validate:"required"`
-	Condition     CondType `json:"condition" gorm:"column:condition" validate:"required,oneof=new used"`
-	Year          int      `json:"year" gorm:"column:year" validate:"required,min=1886,max=2099"`
-	KM            int      `json:"km" gorm:"column:km"`
-	Plate		 string   `json:"plate" gorm:"column:plate;unique"`
+	ID_Car        int      `json:"id_car" gorm:"primaryKey;autoIncrement"`
+	VIN           *string  `json:"vin,omitempty" gorm:"column:vin;unique" validate:"omitempty,alphanum,len=17"`
+	ID_Dealership int      `json:"id_dealership" gorm:"column:id_dealership;not null" validate:"required"`
+	Brand         string   `json:"brand" gorm:"column:brand;not null" validate:"required,max=30"`
+	Model         string   `json:"model" gorm:"column:model;not null" validate:"required,max=30"`
+	Condition     CondType `json:"condition" gorm:"column:condition;not null;default:new" validate:"required,oneof=new used"`
+	Year          int      `json:"year" gorm:"column:year;not null" validate:"required,min=1901"`
+	KM            string   `json:"km" gorm:"column:km;not null;default:'0'" validate:"required,max=7"`
+	Plate         string   `json:"plate" gorm:"column:plate;unique;not null" validate:"required,max=10"`
 }
 
-// @swagger:enum OrderStatus
-type OrderStatus string //OrderStatus as Enum for Order struct
+type OrderStatus string
 const (
-	OrderStatusPending    OrderStatus = "pending"     // ← Cambia nome costante
+	OrderStatusPending    OrderStatus = "pending"
 	OrderStatusCompleted  OrderStatus = "completed"
 	OrderStatusCancelled  OrderStatus = "cancelled"
 	OrderStatusInProgress OrderStatus = "in_progress"
@@ -118,12 +116,12 @@ const (
 
 type Order struct {
 	ID_Order      int         `json:"id_order" gorm:"primaryKey;autoIncrement"`
-	Status        OrderStatus `json:"status" gorm:"column:status" validate:"required,oneof=pending completed cancelled in_progress"`
+	Status        OrderStatus `json:"status" gorm:"column:status;not null;default:pending" validate:"required,oneof=pending completed cancelled in_progress"`
 	ID_Client     int         `json:"id_client" gorm:"column:id_client;not null" validate:"required"`
 	ID_Employee   int         `json:"id_employee" gorm:"column:id_employee;not null" validate:"required"`
 	VIN           string      `json:"vin" gorm:"column:vin;not null" validate:"required,alphanum,len=17"`
 	ID_Dealership int         `json:"id_dealership" gorm:"column:id_dealership;not null" validate:"required"`
-	LastUpdate    time.Time   `json:"last_update" gorm:"column:last_update;not null"`
+	LastUpdate    time.Time   `json:"last_update" gorm:"column:last_update;not null;default:CURRENT_TIMESTAMP"`
 }
 
 type Appointment struct {
@@ -132,16 +130,15 @@ type Appointment struct {
 	ID_Employee    int       `json:"id_employee" gorm:"column:id_employee;not null" validate:"required"`
 	ID_Dealership  int       `json:"id_dealership" gorm:"column:id_dealership;not null" validate:"required"`
 	Date           time.Time `json:"date" gorm:"column:date;not null" validate:"required"`
-	Reason         string    `json:"reason" gorm:"column:reason" validate:"required"`
-	Note           *string   `json:"note,omitempty" gorm:"column:note"`
+	Reason         string    `json:"reason" gorm:"column:reason;not null" validate:"required,max=100"`
+	Notes          *string   `json:"notes,omitempty" gorm:"column:notes"`
 }
 
-// TableName overrides the default table name for some structs
 func (Employee) TableName() string {
-  return "employee"
+	return "employee"
 }
 func (Employment) TableName() string {
-  return "employment"
+	return "employment"
 }
 func (Client) TableName() string {
 	return "client"
@@ -156,5 +153,5 @@ func (Appointment) TableName() string {
 	return "appointment"
 }
 func (Dealership) TableName() string {
-    return "dealership"
+	return "dealership"
 }
