@@ -2,13 +2,14 @@
 package api
 
 import (
+	_ "keeper/docs"
 	"keeper/internal/storage"
 	"log"
 	"net/http"
-	"github.com/go-playground/validator/v10"
-	"github.com/go-chi/chi/v5"          
+
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	_"keeper/docs" 
+	"github.com/go-playground/validator/v10"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
@@ -50,7 +51,7 @@ func NewAPIServer(listenAddr string, store storage.Store, validate *validator.Va
 	// Employee resource routes
 	server.Router.Route("/employees", func(r chi.Router) {
 		r.Post("/", server.handleCreateEmployee)     // Create new employee
-		r.Get("/", server.handleGetEmployee)         // List all employees
+		r.Get("/", server.handleGetEmployees)         // List all employees
 		r.Put("/{id}", server.handleUpdateEmployee)  // Update existing employee
 		r.Delete("/{id}", server.handleDeleteEmployee) // Delete employee
 	})
@@ -72,7 +73,7 @@ func NewAPIServer(listenAddr string, store storage.Store, validate *validator.Va
 	})
 
 	// Car resource routes
-	server.Router.Route("/car", func(r chi.Router) {
+	server.Router.Route("/cars", func(r chi.Router) {  
 		r.Post("/", server.handleCreateCar)      // Create new car
 		r.Get("/", server.handleGetCars)         // List all cars
 		r.Patch("/{id}", server.handlePatchCar) // Partially update car

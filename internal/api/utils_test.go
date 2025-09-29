@@ -1,11 +1,12 @@
-//in utils_test.go
+// in utils_test.go
 package api
 
 import (
 	"context"
-	"testing"
 	"net/http"
 	"net/http/httptest"
+	"testing"
+
 	"github.com/go-chi/chi/v5"
 )
 
@@ -62,7 +63,7 @@ func TestGetIDFromURL(t *testing.T) {
 			if (err != nil) != tc.wantErr {
 				t.Fatalf("getIDFromURL() error = %v, wantErr %v", err, tc.wantErr)
 			}
-			
+
 			// Only check ID value when no error is expected
 			if !tc.wantErr && gotID != tc.wantID {
 				t.Errorf("getIDFromURL() = %v, want %v", gotID, tc.wantID)

@@ -5,10 +5,9 @@ import (
 	"time"
 )
 
-
 type Dealership struct {
 	ID_Dealership int    `json:"id_dealership"`
-	PostalCode    string `json:"postal_code" validate:"len=5,numeric"`
+	PostalCode    string `json:"postal_code" validate:"min=3,max=10,alphanum"`
 	City          string `json:"city" validate:"required"`
 	Address       string `json:"address" validate:"required"`
 	Phone         string `json:"phone" validate:"required"`
@@ -17,16 +16,16 @@ type Dealership struct {
 // @swagger:enum Role
 type Role string //Role Type as Enum for Employee struct
 const (
-	RoleAssistant Role = "assistant"
-	RoleSeller    Role = "seller"
-	RoleManager   Role = "manager"
-	RoleAdmin     Role = "admin"
-	RoleMechanic  Role = "mechanic"
+	RoleAssistant    Role = "assistant"
+	RoleSalesperson  Role = "salesperson"  // ← Cambia da "seller" a "salesperson"
+	RoleManager      Role = "manager"
+	RoleAdmin        Role = "admin"
+	RoleMechanic     Role = "mechanic"
 )
 
 type Employee struct {
 	ID_Employee int    `json:"id_employee" gorm:"primaryKey;autoIncrement"`
-	Role        Role   `json:"role" gorm:"column:role" validate:"required,oneof=assistant seller manager admin mechanic"`
+	Role        Role   `json:"role" gorm:"column:role" validate:"required,oneof=assistant salesperson manager admin mechanic"`
 	TIN         string `json:"tin" gorm:"column:tin;unique" validate:"required"`
 	Name        string `json:"name" gorm:"column:name" validate:"required"`
 	Surname     string `json:"surname" gorm:"column:surname" validate:"required"`
@@ -98,7 +97,7 @@ const (
 
 type CarPark struct {
 	ID_Car	      int      `json:"id_car" gorm:"primaryKey;autoIncrement"`
-	VIN           string   `json:"vin" gorm:"column:vin" validate:"omitempty,alphanum,len=17"`
+	VIN           *string   `json:"vin,omitempty" gorm:"column:vin" validate:"omitempty,alphanum,len=17"`
 	ID_Dealership int      `json:"id_dealership" gorm:"column:id_dealership;not null"`
 	Brand         string   `json:"brand" gorm:"column:brand" validate:"required"`
 	Model         string   `json:"model" gorm:"column:model" validate:"required"`
@@ -111,7 +110,7 @@ type CarPark struct {
 // @swagger:enum OrderStatus
 type OrderStatus string //OrderStatus as Enum for Order struct
 const (
-	OrderStatusClient     OrderStatus = "pending"
+	OrderStatusPending    OrderStatus = "pending"     // ← Cambia nome costante
 	OrderStatusCompleted  OrderStatus = "completed"
 	OrderStatusCancelled  OrderStatus = "cancelled"
 	OrderStatusInProgress OrderStatus = "in_progress"
@@ -134,7 +133,7 @@ type Appointment struct {
 	ID_Dealership  int       `json:"id_dealership" gorm:"column:id_dealership;not null" validate:"required"`
 	Date           time.Time `json:"date" gorm:"column:date;not null" validate:"required"`
 	Reason         string    `json:"reason" gorm:"column:reason" validate:"required"`
-	Note           *string   `json:"note,omitempty" gorm:"column:notes"`
+	Note           *string   `json:"note,omitempty" gorm:"column:note"`
 }
 
 // TableName overrides the default table name for some structs
@@ -155,4 +154,7 @@ func (Order) TableName() string {
 }
 func (Appointment) TableName() string {
 	return "appointment"
+}
+func (Dealership) TableName() string {
+    return "dealership"
 }

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"keeper/internal/models"
 	"net/http"
-	
 )
 
 // utils.writeJSON and utils.writeError are utility functions for writing JSON responses and error messages to the HTTP response writer.
@@ -130,19 +129,20 @@ func (s *APIServer) handleDeleteDealership(w http.ResponseWriter, r *http.Reques
 		logError(r, err)
 		return
 	}
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // Employees Handlers //
 
 // @Summary      Create Employee
+// @Description  Creates a new employee in the system.
 // @Tags         Employees
 // @Accept       json
 // @Produce      json
-// @Param        employee  body      models.Employee      true  "New Employee"
-// @Success      201       {object}  map[string]int
-// @Failure      400       {object}  map[string]string
-// @Failure      500       {object}  map[string]string
+// @Param        employee  body      models.Employee      true  "New Employee Data"
+// @Success      201       {object}  map[string]int       "Returns the ID of the newly created employee"
+// @Failure      400       {object}  map[string]string    "Error: Invalid request payload"
+// @Failure      500       {object}  map[string]string    "Error: Internal server error"
 // @Router       /employees [post]
 func (s *APIServer) handleCreateEmployee(w http.ResponseWriter, r *http.Request) {
 	var newEmployee models.Employee
@@ -166,13 +166,14 @@ func (s *APIServer) handleCreateEmployee(w http.ResponseWriter, r *http.Request)
 }
 
 // @Summary      List Employees
+// @Description  Retrieves a list of all employees in the system.
 // @Tags         Employees
 // @Produce      json
 // @Success      200  {array}   models.Employee
-// @Failure      500  {object}  map[string]string
+// @Failure      500  {object}  map[string]string "Error: Internal server error"
 // @Router       /employees [get]
-func (s *APIServer) handleGetEmployee(w http.ResponseWriter, r *http.Request) {
-	employees, err := s.store.GetEmployee()
+func (s *APIServer) handleGetEmployees(w http.ResponseWriter, r *http.Request) {
+	employees, err := s.store.GetEmployees()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
@@ -183,14 +184,15 @@ func (s *APIServer) handleGetEmployee(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary      Update Employee
+// @Description  Updates an existing employee's data by their ID.
 // @Tags         Employees
 // @Accept       json
 // @Produce      json
 // @Param        id        path      int              true  "Employee ID"
 // @Param        employee  body      models.Employee  true  "Updated Employee Data"
 // @Success      200       {object}  models.Employee
-// @Failure      400       {object}  map[string]string
-// @Failure      500       {object}  map[string]string
+// @Failure      400       {object}  map[string]string "Error: Invalid ID or request payload"
+// @Failure      500       {object}  map[string]string "Error: Internal server error"
 // @Router       /employees/{id} [put]
 func (s *APIServer) handleUpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	id, err := getIDFromURL(r)
@@ -220,12 +222,13 @@ func (s *APIServer) handleUpdateEmployee(w http.ResponseWriter, r *http.Request)
 }
 
 // @Summary      Delete Employee
+// @Description  Deletes an employee by their ID.
 // @Tags         Employees
 // @Produce      json
 // @Param        id  path      int  true  "Employee ID"
 // @Success      204 "No Content"
-// @Failure      400 {object}  map[string]string
-// @Failure      500 {object}  map[string]string
+// @Failure      400 {object}  map[string]string "Error: Invalid ID"
+// @Failure      500 {object}  map[string]string "Error: Internal server error"
 // @Router       /employees/{id} [delete]
 func (s *APIServer) handleDeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	id, err := getIDFromURL(r)
@@ -240,7 +243,7 @@ func (s *APIServer) handleDeleteEmployee(w http.ResponseWriter, r *http.Request)
 		logError(r, err)
 		return
 	}
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // Employments Handlers //
@@ -354,7 +357,7 @@ func (s *APIServer) handleDeleteEmployment(w http.ResponseWriter, r *http.Reques
 		logError(r, err)
 		return
 	}
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // Clients Handlers //
@@ -468,21 +471,21 @@ func (s *APIServer) handleDeleteClient(w http.ResponseWriter, r *http.Request) {
 		logError(r, err)
 		return
 	}
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }
 
-// CarPark Handlers //
+// Cars Handlers //
 
-// @Summary      Add a new Vehicle
-// @Description  Adds a new vehicle to the inventory.
-// @Tags         Vehicles
+// @Summary      Add a new Car
+// @Description  Adds a new car to the inventory.
+// @Tags         Cars
 // @Accept       json
 // @Produce      json
-// @Param        vehicle  body      models.CarPark       true  "New Vehicle Data"
-// @Success      201      {object}  map[string]int     "Returns the ID of the newly created vehicle"
+// @Param        car      body      models.CarPark       true  "New Car Data"
+// @Success      201      {object}  map[string]int     "Returns the ID of the newly created car"
 // @Failure      400      {object}  map[string]string  "Error: Invalid request payload"
 // @Failure      500      {object}  map[string]string  "Error: Internal server error"
-// @Router       /vehicles [post]
+// @Router       /cars [post]
 func (s *APIServer) handleCreateCar(w http.ResponseWriter, r *http.Request) {
 	var newCar models.CarPark
 	if err := json.NewDecoder(r.Body).Decode(&newCar); err != nil {
@@ -495,7 +498,7 @@ func (s *APIServer) handleCreateCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newID, err := s.store.CreateCarPark(&newCar)
+	newID, err := s.store.CreateCar(&newCar)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
@@ -504,15 +507,15 @@ func (s *APIServer) handleCreateCar(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]int{"id": newID})
 }
 
-// @Summary      List all Vehicles
-// @Description  Retrieves a list of all vehicles in the car park.
-// @Tags         Vehicles
+// @Summary      List all Cars
+// @Description  Retrieves a list of all cars in the car park.
+// @Tags         Cars
 // @Produce      json
 // @Success      200  {array}   models.CarPark
 // @Failure      500  {object}  map[string]string "Error: Internal server error"
-// @Router       /vehicles [get]
+// @Router       /cars [get]
 func (s *APIServer) handleGetCars(w http.ResponseWriter, r *http.Request) {
-	cars, err := s.store.GetCarParks()
+	cars, err := s.store.GetCars()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
@@ -521,17 +524,17 @@ func (s *APIServer) handleGetCars(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, cars)
 }
 
-// @Summary      Update a Vehicle
-// @Description  Updates an existing vehicle's data by its ID.
-// @Tags         Vehicles
+// @Summary      Patch a Car
+// @Description  Partially updates a car by its ID. Only provided fields will be modified.
+// @Tags         Cars
 // @Accept       json
 // @Produce      json
-// @Param        id       path      int              true  "Vehicle ID"
-// @Param        vehicle  body      models.CarPark   true  "Updated Vehicle Data"
-// @Success      200      {object}  models.CarPark
-// @Failure      400      {object}  map[string]string "Error: Invalid ID or request payload"
-// @Failure      500      {object}  map[string]string "Error: Internal server error"
-// @Router       /vehicles/{id} [put]
+// @Param        id       path      int                        true  "Car ID"
+// @Param        updates  body      map[string]interface{}     true  "Fields to update (partial car data)"
+// @Success      200      {object}  map[string]string          "Returns update confirmation"
+// @Failure      400      {object}  map[string]string          "Error: Invalid ID or request payload"
+// @Failure      500      {object}  map[string]string          "Error: Internal server error"
+// @Router       /cars/{id} [patch]
 func (s *APIServer) handlePatchCar(w http.ResponseWriter, r *http.Request) {
 	id, err := getIDFromURL(r)
 	if err != nil {
@@ -551,7 +554,7 @@ func (s *APIServer) handlePatchCar(w http.ResponseWriter, r *http.Request) {
 	// Skip struct validation since we have a map
 
 	// Pass the map directly to the store
-	if err := s.store.PatchCarPark(id, updates); err != nil {
+	if err := s.store.PatchCar(id, updates); err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return
@@ -560,15 +563,15 @@ func (s *APIServer) handlePatchCar(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "updated"})
 }
 
-// @Summary      Delete a Vehicle
-// @Description  Deletes a vehicle from the inventory by its ID.
-// @Tags         Vehicles
+// @Summary      Delete a Car
+// @Description  Deletes a car from the inventory by its ID.
+// @Tags         Cars
 // @Produce      json
-// @Param        id  path      int  true  "Vehicle ID"
+// @Param        id  path      int  true  "Car ID"
 // @Success      204 "No Content"
 // @Failure      400 {object}  map[string]string "Error: Invalid ID"
 // @Failure      500 {object}  map[string]string "Error: Internal server error"
-// @Router       /vehicles/{id} [delete]
+// @Router       /cars/{id} [delete]
 func (s *APIServer) handleDeleteCar(w http.ResponseWriter, r *http.Request) {
 	id, err := getIDFromURL(r)
 	if err != nil {
@@ -577,12 +580,12 @@ func (s *APIServer) handleDeleteCar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := s.store.DeleteCarPark(id); err != nil {
+	if err := s.store.DeleteCar(id); err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		logError(r, err)
 		return
 	}
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // Orders Handlers //
@@ -695,7 +698,7 @@ func (s *APIServer) handleDeleteOrder(w http.ResponseWriter, r *http.Request) {
 		logError(r, err)
 		return
 	}
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // Appointments Handlers //
@@ -808,5 +811,5 @@ func (s *APIServer) handleDeleteAppointment(w http.ResponseWriter, r *http.Reque
 		logError(r, err)
 		return
 	}
-	writeJSON(w, http.StatusNoContent, nil)
+	w.WriteHeader(http.StatusNoContent)
 }

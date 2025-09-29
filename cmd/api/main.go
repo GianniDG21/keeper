@@ -1,9 +1,10 @@
 // in cmd/api/main.go
 package main
+
 // @title KEEPER API
 // @version 1.0
 // @description API for the KEEPER Dealership Management System.
-// @host localhost:8080
+// @host progetto-keeper.fly.dev
 // @BasePath /
 import (
 	"keeper/internal/api"
@@ -32,6 +33,10 @@ func main() {
 	}
 	// Initialize the validator
 	validate := validator.New()
-	server := api.NewAPIServer(":8080", store, validate)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	server := api.NewAPIServer(":"+port, store, validate)
 	server.Run()
 }
