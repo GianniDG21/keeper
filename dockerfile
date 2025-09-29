@@ -2,20 +2,24 @@ FROM golang:1.23-alpine as builder
 
 WORKDIR /app
 
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
+COPY go.mod go.sum ./
+RUN go mod tidy
+
 COPY . .
 
-RUN ls -la
-RUN cat go.mod
+RUN swag init -g cmd/api/main.go
 
-RUN go mod tidy -v
-
-RUN ls -la ./cmd/
-RUN ls -la ./cmd/api/
-
-RUN go build -x -v -o /app/main ./cmd/api
+RUN go build -o /app/main ./cmd/api
 
 FROM alpine:latest
+
 WORKDIR /app
+
 COPY --from=builder /app/main .
+COPY --from=builder /app/docs ./docs
+
 EXPOSE 8080
+
 CMD ["/app/main"]
