@@ -9,6 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
+// Error constants
+const (
+	ErrCannotDeleteReferenced = "cannot delete: referenced by"
+)
+
 // @Summary      Health Check
 // @Description  Checks if the API server is running.
 // @Tags         System
@@ -126,7 +131,7 @@ func (s *APIServer) handleDeleteDealership(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := s.store.DeleteDealership(id); err != nil {
-		if strings.Contains(err.Error(), "cannot delete: referenced by") {
+		if strings.Contains(err.Error(), ErrCannotDeleteReferenced) {
 			writeError(w, http.StatusConflict, err)
 			logError(r, err)
 			return
@@ -250,7 +255,7 @@ func (s *APIServer) handleDeleteEmployee(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := s.store.DeleteEmployee(id); err != nil {
-		if strings.Contains(err.Error(), "cannot delete: referenced by") {
+		if strings.Contains(err.Error(), ErrCannotDeleteReferenced) {
 			writeError(w, http.StatusConflict, err)
 			logError(r, err)
 			return
@@ -493,7 +498,7 @@ func (s *APIServer) handleDeleteClient(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.store.DeleteClient(id); err != nil {
-		if strings.Contains(err.Error(), "cannot delete: referenced by") {
+		if strings.Contains(err.Error(), ErrCannotDeleteReferenced) {
 			writeError(w, http.StatusConflict, err)
 			logError(r, err)
 			return
@@ -614,7 +619,7 @@ func (s *APIServer) handleDeleteCar(w http.ResponseWriter, r *http.Request) {
 
 	if err := s.store.DeleteCar(id); err != nil {
 		if strings.Contains(err.Error(), "referenced by existing orders") || 
-		   strings.Contains(err.Error(), "referenced by") {
+		   strings.Contains(err.Error(), ErrCannotDeleteReferenced) {
 			writeError(w, http.StatusConflict, err)
 			logError(r, err)
 			return
