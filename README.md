@@ -59,35 +59,30 @@ An interactive API documentation is available via Swagger UI. Once the server is
 
 `http://localhost:8080/swagger/index.html`
 
-or : https://progetto-keeper.fly.dev/swagger/index.html
+or : `https://progetto-keeper.fly.dev/swagger/index.html`
 
 ---
 
 ### Getting Started
 
-To get a local copy up and running, follow these simple steps.
+To get a local copy up and running, follow these simple, step-by-step instructions.
 
 #### Prerequisites
 
 Make sure you have the following software installed on your machine:
 * **Go**: version 1.22 or later.
-* **Docker & Docker Compose**: To run the database and other services.
-* **An API Client**: Such as [Postman](https://www.postman.com/) for testing the endpoints.
+* **Docker & Docker Compose**: To run the project's services.
+* **A SQL Client**: Such as [DBeaver](https://dbeaver.io/) or TablePlus, to set up the database.
 
-#### Installation
+#### Installation & Setup
 
-1.  **Clone the repository**
+1.  **Clone the Repository**
     ```sh
-    git clone [https://github.com/GianniDG21/keeper.git](https://github.com/GianniDG21/keeper.git)
+    git clone [https://github.com/GianniDG21/keeper.git]
     ```
 
-2.  **Navigate to the project directory**
-    ```sh
-    cd keeper
-    ```
-
-3.  **Create the environment file**
-    Create a `.env` file in the root of the project. This file will hold your local environment variables. Copy and paste the following content into it:
+2.  **Create the Environment File**
+    Create a `.env` file in the root of the project and paste the following content. This file configures the local database connection.
     ```env
     # PostgreSQL Connection URL for the Go application
     DATABASE_URL="postgres://keeper:keeper@localhost:5432/keeper?sslmode=disable"
@@ -97,17 +92,27 @@ Make sure you have the following software installed on your machine:
     POSTGRES_PASSWORD=keeper
     ```
 
-4.  **Launch the Infrastructure & API**
-    * In your first terminal, start the database container using Docker Compose:
-        ```sh
-        docker-compose up -d
-        ```
-    * In a second terminal, run the main application:
-        ```sh
-        go run ./cmd/api
-        ```
+3.  **Launch the Database**
+    This command starts the PostgreSQL container.
+    ```sh
+    docker-compose up -d
+    ```
 
-5.  **You're ready!** The API server is now running and listening on `http://localhost:8080`.
+4.  **Set Up the Database Schema & Data**
+    The database is now running but empty. You need to create the tables.
+    * Open your SQL client (e.g., DBeaver) and connect to the local database using the credentials from the `.env` file (`host: localhost`, `port: 5432`, etc.).
+    * Open and run the schema creation script to create all necessary tables:
+        `01_schema.sql`
+    * (Optional) Run the seeding script to populate the database with sample data:
+        `02_seeds.sql`
+
+5.  **Run the Go API Server**
+    Now that the database is ready, you can start the API server in a separate terminal:
+    ```sh
+    go run ./cmd/api
+    ```
+
+6.  **You're ready!** The API server is now running on `http://localhost:8080`.
 
 ---
 
@@ -144,4 +149,8 @@ Distributed under the CC BY-NC-SA 4.0 Legal Code. See `LICENSE.txt` for more inf
 
 Gianni De Grossi - giannidegrossi@gmail.com
 
-Project Link: [https://github.com/GianniDG21/keeper](https://github.com/GianniDG21/keeper)
+Project Link: [https://github.com/GianniDG21/keeper]
+
+![Go Version](https://img.shields.io/badge/Go-1.22+-blue)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue)
+![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green)
